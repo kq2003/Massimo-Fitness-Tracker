@@ -1,88 +1,115 @@
-from flask import Blueprint, render_template, url_for, flash, redirect, request
-from app import db, bcrypt
-from app.models import User, Workout
-from app.services import upload_to_s3
-from flask_login import login_user, current_user, logout_user, login_required
+from flask import Blueprint, request, jsonify
+from flask_login import login_required, current_user, login_user, logout_user
+from app.models import User  # Import the User model
+from app.services import (
+    add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
+    add_strength_training, get_strength_training, update_strength_training, delete_strength_training
+)
+from app import bcrypt  # Import bcrypt to handle password hashing
 
 main = Blueprint('main', __name__)
 
-@main.route("/register", methods=['GET', 'POST'])
+@main.route('/register', methods=['POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
+    from app import db
+    data = request.get_json()
+    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
     
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = User(username=username, email=email, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Account created!', 'success')
-        return redirect(url_for('main.login'))
+    new_user = User(username=data['username'], email=data['email'], password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
     
-    return render_template('register.html')
+    return jsonify({'message': 'User registered successfully'}), 201
 
-@main.route("/login", methods=['GET', 'POST'])
+
+# A route to log in the user
+@main.route('/login', methods=['POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
-
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
-        if user and bcrypt.check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for('main.dashboard'))
-        else:
-            flash('Login failed. Check email and password.', 'danger')
+    data = request.get_json()
+    user = User.query.filter_by(email=data['email']).first()
     
-    return render_template('login.html')
+    if user and bcrypt.check_password_hash(user.password, data['password']):
+        login_user(user)  # This logs the user in
+        return jsonify({'message': 'Logged in successfully'}), 200
+    else:
+        return jsonify({'message': 'Invalid credentials'}), 401
 
-@main.route("/dashboard")
+# A route to log out the user
+@main.route('/logout', methods=['GET'])
 @login_required
-def dashboard():
-    workouts = Workout.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', workouts=workouts)
-
-@main.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('main.login'))
+    return jsonify({'message': 'Logged out successfully'}), 200
 
-@main.route("/workout", methods=['POST'])
+# Route to add an aerobic training entry
+@main.route('/add_aerobic', methods=['POST'])
 @login_required
-def log_workout():
-    workout_type = request.form.get('workout_type')
-    duration = request.form.get('duration')
-    calories_burned = request.form.get('calories_burned')
-    workout = Workout(workout_type=workout_type, duration=duration, calories_burned=calories_burned, user_id=current_user.id)
-    db.session.add(workout)
-    db.session.commit()
-    flash('Workout logged!', 'success')
-    return redirect(url_for('main.dashboard'))
+def add_aerobic():
+    data = request.get_json()
+    aerobic_session = add_aerobic_training(data, current_user.id)
+    return jsonify({'message': 'Aerobic training added', 'id': aerobic_session.id}), 201
 
-@main.route('/upload_video', methods=['POST'])
+# Route to get all aerobic training entries
+@main.route('/get_aerobic', methods=['GET'])
 @login_required
-def upload_video():
-    if 'video' not in request.files:
-        flash('No video file found', 'danger')
-        return redirect(url_for('main.dashboard'))
+def get_aerobic():
+    sessions = get_aerobic_training(current_user.id)
+    result = [{'type': s.type, 'duration': s.duration, 'calories_burnt': s.calories_burnt} for s in sessions]
+    return jsonify(result), 200
 
-    video = request.files['video']
-    if video.filename == '':
-        flash('No selected file', 'danger')
-        return redirect(url_for('main.dashboard'))
+# Route to update an aerobic training entry
+@main.route('/update_aerobic/<int:aerobic_id>', methods=['PUT'])
+@login_required
+def update_aerobic(aerobic_id):
+    updates = request.get_json()
+    session = update_aerobic_training(aerobic_id, updates)
+    if session:
+        return jsonify({'message': 'Aerobic training updated successfully'}), 200
+    return jsonify({'message': 'Session not found'}), 404
 
-    if video:
-        video_url = upload_to_s3(video, Config.S3_BUCKET_NAME)
-        if video_url:
-            flash('Video uploaded successfully!', 'success')
-            # Optional: Store video_url in the database with the workout record
-            return redirect(url_for('main.dashboard'))
-        else:
-            flash('Upload failed. Please try again.', 'danger')
-    
-    return redirect(url_for('main.dashboard'))
+# Route to delete an aerobic training entry
+@main.route('/delete_aerobic/<int:aerobic_id>', methods=['DELETE'])
+@login_required
+def delete_aerobic(aerobic_id):
+    success = delete_aerobic_training(aerobic_id)
+    if success:
+        return jsonify({'message': 'Aerobic training deleted successfully'}), 200
+    return jsonify({'message': 'Session not found'}), 404
+
+# Route to add strength training
+@main.route('/add_strength', methods=['POST'])
+@login_required
+def add_strength():
+    data = request.get_json()
+    strength_session = add_strength_training(data, current_user.id)
+    return jsonify({'message': 'Strength training added', 'id': strength_session.id}), 201
+
+# Route to get all strength training entries
+@main.route('/get_strength', methods=['GET'])
+@login_required
+def get_strength():
+    sessions = get_strength_training(current_user.id)
+    result = [{'type': s.type, 'sets': s.sets, 'reps': s.reps, 'rest_time': s.rest_time, 'effort_level': s.effort_level} for s in sessions]
+    return jsonify(result), 200
+
+# Route to update strength training entry
+@main.route('/update_strength/<int:strength_id>', methods=['PUT'])
+@login_required
+def update_strength(strength_id):
+    updates = request.get_json()
+    session = update_strength_training(strength_id, updates)
+    if session:
+        return jsonify({'message': 'Strength training updated successfully'}), 200
+    return jsonify({'message': 'Session not found'}), 404
+
+# Route to delete a strength training entry
+@main.route('/delete_strength/<int:strength_id>', methods=['DELETE'])
+@login_required
+def delete_strength(strength_id):
+    success = delete_strength_training(strength_id)
+    if success:
+        return jsonify({'message': 'Strength training deleted successfully'}), 200
+    return jsonify({'message': 'Session not found'}), 404
+
+
+
