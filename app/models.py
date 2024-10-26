@@ -26,17 +26,18 @@ class AerobicTraining(db.Model):
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-# Strength training schema
 class StrengthTraining(db.Model):
     __tablename__ = 'strength_training'
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(100), nullable=False)
-    sets = db.Column(db.Integer, nullable=False)
-    reps = db.Column(db.Integer, nullable=False)
-    rest_time = db.Column(db.Integer, nullable=False)  # Rest time between sets (in seconds)
-    effort_level = db.Column(db.String(100), nullable=False)  # How hard one pushed (e.g., RPE, notes)
+    type = db.Column(db.String(100), nullable=False)  # Bench, Squat, etc.
+    reps = db.Column(db.Integer, nullable=False)  # Number of repetitions
+    weight = db.Column(db.Float, nullable=False)  # Weight used in the exercise (in kg or lbs)
+    rest_time = db.Column(db.Integer, nullable=False)  # Rest time between exercises (in seconds)
+    effort_level = db.Column(db.String(100), nullable=False)  # How hard one pushed (e.g., RPE)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+
 
 # Daily data schema
 class DailyData(db.Model):

@@ -89,8 +89,9 @@ def add_strength():
 @login_required
 def get_strength():
     sessions = get_strength_training(current_user.id)
-    result = [{'type': s.type, 'sets': s.sets, 'reps': s.reps, 'rest_time': s.rest_time, 'effort_level': s.effort_level} for s in sessions]
+    result = [{'type': s.type, 'reps': s.reps, 'weight': s.weight, 'rest_time': s.rest_time, 'effort_level': s.effort_level} for s in sessions]
     return jsonify(result), 200
+
 
 # Route to update strength training entry
 @main.route('/update_strength/<int:strength_id>', methods=['PUT'])

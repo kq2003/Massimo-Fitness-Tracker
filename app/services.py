@@ -41,8 +41,8 @@ def delete_aerobic_training(aerobic_id):
 def add_strength_training(data, user_id):
     new_strength = StrengthTraining(
         type=data.get('type'),
-        sets=data.get('sets'),
         reps=data.get('reps'),
+        weight=data.get('weight'),  # Add weight instead of sets
         rest_time=data.get('rest_time'),
         effort_level=data.get('effort_level'),
         user_id=user_id
