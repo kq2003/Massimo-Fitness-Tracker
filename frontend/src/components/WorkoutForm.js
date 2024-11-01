@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { registerUser, loginUser, addAerobicWorkout, addStrengthWorkout, logoutUser } from '../api';
 
 function WorkoutForm() {
@@ -11,6 +12,8 @@ function WorkoutForm() {
         type: '', duration: '', calories_burnt: '', heart_rate: '',
         reps: '', weight: '', rest_time: ''
     });
+
+    const navigate = useNavigate(); // Import and define navigate here
 
     // Handle changes in registration form
     const handleRegisterChange = (e) => {
@@ -43,6 +46,7 @@ function WorkoutForm() {
             await loginUser(loginData);
             setIsLoggedIn(true);
             alert('Logged in successfully!');
+            navigate('/menu'); // Redirect to menu after login
         } catch (error) {
             alert('Invalid login credentials');
         }
