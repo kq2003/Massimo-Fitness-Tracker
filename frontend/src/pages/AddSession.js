@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addAerobicWorkout, addStrengthWorkout } from '../api';
+import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
 
 function AddSession() {
     const [aerobicSessions, setAerobicSessions] = useState([]);
@@ -35,7 +36,7 @@ function AddSession() {
                 await addAerobicWorkout(session);
             }
             alert('Aerobic workouts added successfully!');
-            setAerobicSessions([]);
+            setAerobicSessions([]); // Clear the sessions after submission
         } catch (error) {
             alert('Failed to add aerobic workouts.');
         }
@@ -47,7 +48,7 @@ function AddSession() {
                 await addStrengthWorkout(session);
             }
             alert('Strength workouts added successfully!');
-            setStrengthSessions([]);
+            setStrengthSessions([]); // Clear the sessions after submission
         } catch (error) {
             alert('Failed to add strength workouts.');
         }
@@ -68,108 +69,170 @@ function AddSession() {
     };
 
     return (
-        <div>
-            <h1>Add a Workout Session</h1>
+        <Container className="mt-4">
+            <h1 className="text-center mb-4">Add a Workout Session</h1>
 
-            <div>
-                <h2>Aerobic Training</h2>
-                {aerobicSessions.map((session, index) => (
-                    <div key={index} style={{ border: '1px solid gray', padding: '10px', margin: '10px 0' }}>
-                        <h3>Aerobic Session {index + 1}</h3>
-                        <input
-                            type="text"
-                            name="type"
-                            placeholder="Exercise Type"
-                            value={session.type}
-                            onChange={(e) => handleAerobicChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="duration"
-                            placeholder="Duration (minutes)"
-                            value={session.duration}
-                            onChange={(e) => handleAerobicChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="calories_burnt"
-                            placeholder="Calories Burnt"
-                            value={session.calories_burnt}
-                            onChange={(e) => handleAerobicChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="heart_rate"
-                            placeholder="Heart Rate (optional)"
-                            value={session.heart_rate}
-                            onChange={(e) => handleAerobicChange(index, e)}
-                        />
-                        <button onClick={() => deleteAerobicSession(index)}>Delete Aerobic Session</button>
-                    </div>
-                ))}
-                <button onClick={addAerobicSession}>Add Aerobic Training Slot</button>
-                <button onClick={submitAerobicSessions}>Submit Aerobic Workouts</button>
-            </div>
-
-            <div>
-                <h2>Strength Training</h2>
+            {/* Strength Training Section */}
+            <div className="mb-5">
+                <h2 className="text-center">Strength Training</h2>
                 {strengthSessions.map((session, index) => (
-                    <div key={index} style={{ border: '1px solid gray', padding: '10px', margin: '10px 0' }}>
-                        <h3>Strength Session {index + 1}</h3>
-                        <input
-                            type="text"
-                            name="type"
-                            placeholder="Exercise Type"
-                            value={session.type}
-                            onChange={(e) => handleStrengthChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="reps"
-                            placeholder="Reps"
-                            value={session.reps}
-                            onChange={(e) => handleStrengthChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="weight"
-                            placeholder="Weight (kg)"
-                            value={session.weight}
-                            onChange={(e) => handleStrengthChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="number"
-                            name="rest_time"
-                            placeholder="Rest Time (seconds)"
-                            value={session.rest_time}
-                            onChange={(e) => handleStrengthChange(index, e)}
-                            required
-                        />
-                        <input
-                            type="text"
-                            name="effort_level"
-                            placeholder="Effort Level (e.g., RPE)"
-                            value={session.effort_level}
-                            onChange={(e) => handleStrengthChange(index, e)}
-                            required
-                        />
-                        <button onClick={() => deleteStrengthSession(index)}>Delete Strength Session</button>
-                    </div>
+                    <Card key={index} className="mb-3">
+                        <Card.Body>
+                            <Card.Title>Strength Session {index + 1}</Card.Title>
+                            <Row className="mb-2">
+                                <Col md={2}>
+                                    <Form.Group controlId={`strengthType${index}`}>
+                                        <Form.Label>Type</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="type"
+                                            placeholder="Type"
+                                            value={session.type}
+                                            onChange={(e) => handleStrengthChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Group controlId={`strengthReps${index}`}>
+                                        <Form.Label>Reps</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="reps"
+                                            placeholder="Reps"
+                                            value={session.reps}
+                                            onChange={(e) => handleStrengthChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={2}>
+                                    <Form.Group controlId={`strengthWeight${index}`}>
+                                        <Form.Label>Weight (kg)</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="weight"
+                                            placeholder="Weight"
+                                            value={session.weight}
+                                            onChange={(e) => handleStrengthChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3}>
+                                    <Form.Group controlId={`strengthRestTime${index}`}>
+                                        <Form.Label>Rest Time (s)</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="rest_time"
+                                            placeholder="Rest Time"
+                                            value={session.rest_time}
+                                            onChange={(e) => handleStrengthChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3}>
+                                    <Form.Group controlId={`strengthEffortLevel${index}`}>
+                                        <Form.Label>Effort Level</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="effort_level"
+                                            placeholder="Effort Level"
+                                            value={session.effort_level}
+                                            onChange={(e) => handleStrengthChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Button variant="danger" onClick={() => deleteStrengthSession(index)} className="mt-2">
+                                Delete Strength Session
+                            </Button>
+                        </Card.Body>
+                    </Card>
                 ))}
-                <button onClick={addStrengthSession}>Add Strength Training Slot</button>
-                <button onClick={submitStrengthSessions}>Submit Strength Workouts</button>
+                <Button variant="success" onClick={addStrengthSession} className="w-100 mb-3">
+                    Add Strength Training Slot
+                </Button>
+                <Button variant="primary" onClick={submitStrengthSessions} className="w-100">
+                    Finish Strength Workouts
+                </Button>
             </div>
 
-            <button onClick={goToMenu}>Back to Menu</button>
-        </div>
+            {/* Aerobic Training Section */}
+            <div>
+                <h2 className="text-center">Aerobic Training</h2>
+                {aerobicSessions.map((session, index) => (
+                    <Card key={index} className="mb-3">
+                        <Card.Body>
+                            <Card.Title>Aerobic Session {index + 1}</Card.Title>
+                            <Row className="mb-2">
+                                <Col md={3}>
+                                    <Form.Group controlId={`aerobicType${index}`}>
+                                        <Form.Label>Type</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="type"
+                                            placeholder="Type"
+                                            value={session.type}
+                                            onChange={(e) => handleAerobicChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3}>
+                                    <Form.Group controlId={`aerobicDuration${index}`}>
+                                        <Form.Label>Duration (min)</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="duration"
+                                            placeholder="Duration"
+                                            value={session.duration}
+                                            onChange={(e) => handleAerobicChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3}>
+                                    <Form.Group controlId={`aerobicCalories${index}`}>
+                                        <Form.Label>Calories Burnt</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="calories_burnt"
+                                            placeholder="Calories"
+                                            value={session.calories_burnt}
+                                            onChange={(e) => handleAerobicChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={3}>
+                                    <Form.Group controlId={`aerobicHeartRate${index}`}>
+                                        <Form.Label>Heart Rate</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            name="heart_rate"
+                                            placeholder="Heart Rate"
+                                            value={session.heart_rate}
+                                            onChange={(e) => handleAerobicChange(index, e)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Button variant="danger" onClick={() => deleteAerobicSession(index)} className="mt-2">
+                                Delete Aerobic Session
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                ))}
+                <Button variant="success" onClick={addAerobicSession} className="w-100 mb-3">
+                    Add Aerobic Training Slot
+                </Button>
+                <Button variant="primary" onClick={submitAerobicSessions} className="w-100">
+                    Finish Aerobic Workouts
+                </Button>
+            </div>
+
+            <Button variant="secondary" onClick={goToMenu} className="w-100 mt-4">
+                Back to Menu
+            </Button>
+        </Container>
     );
 }
 
 export default AddSession;
+
 
