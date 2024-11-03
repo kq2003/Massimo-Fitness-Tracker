@@ -4,7 +4,7 @@ from app.models import User
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
     add_strength_training, get_strength_training, update_strength_training, delete_strength_training, get_strength_training_by_exercise,
-    get_unique_exercise_types
+    get_unique_aerobic_exercise_types, get_unique_strength_exercise_types, get_aerobic_progress, get_all_workouts
 )
 from app import bcrypt
 from flask_cors import cross_origin
@@ -143,15 +143,32 @@ def workout_progress(exercise_type):
     }
     return jsonify(response), 200
 
-@main.route('/exercise_types', methods=['GET'])
+@main.route('/strength_exercise_types', methods=['GET'])
 @login_required
-def get_exercise_types():
-    """Endpoint to retrieve unique exercise types for dropdown selection."""
-    types = get_unique_exercise_types()
-    return jsonify(types), 200
+def get_strength_exercise_types():
+    strength_types = get_unique_strength_exercise_types()
+    return jsonify(strength_types), 200
+
+@main.route('/aerobic_exercise_types', methods=['GET'])
+@login_required
+def get_aerobic_exercise_types():
+    aerobic_types = get_unique_aerobic_exercise_types()
+    return jsonify(aerobic_types), 200
 
 
+@main.route('/aerobic_progress/<exercise_type>', methods=['GET'])
+@login_required
+def aerobic_progress(exercise_type):
+    """Route for fetching aerobic training progress data for a specific exercise."""
+    response = get_aerobic_progress(current_user.id, exercise_type)
+    return jsonify(response), 200
 
+@main.route('/all_workouts', methods=['GET'])
+@login_required
+def all_workouts():
+    """Route for fetching all workouts for the listed display view."""
+    workouts = get_all_workouts(current_user.id)
+    return jsonify(workouts), 200
 
 
 

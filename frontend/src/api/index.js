@@ -21,8 +21,11 @@ export const getWorkoutData = () => axios.get(`${API_URL}/workout_data`, { withC
 export const getAerobicData = () => axios.get(`${API_URL}/aerobic_data`, { withCredentials: true });
 export const getStrengthData = () => axios.get(`${API_URL}/strength_data`, { withCredentials: true });
 
-// Fetch unique exercise types for dropdown
-export const getExerciseTypes = () => axios.get(`${API_URL}/exercise_types`, { withCredentials: true });
+// Fetch unique strength exercise types
+export const getStrengthExerciseTypes = () => axios.get(`${API_URL}/strength_exercise_types`, { withCredentials: true });
+
+// Fetch unique aerobic exercise types
+export const getAerobicExerciseTypes = () => axios.get(`${API_URL}/aerobic_exercise_types`, { withCredentials: true });
 
 // Fetch progress data for a specific exercise type
 export const getExerciseProgress = (exerciseType) =>
@@ -31,6 +34,9 @@ export const getExerciseProgress = (exerciseType) =>
 
 // Placeholder for AI feedback functionality
 export const getWorkoutFeedback = () => axios.get(`${API_URL}/workout_feedback`, { withCredentials: true });
+
+export const getAerobicProgress = (exerciseType) => axios.get(`${API_URL}/aerobic_progress/${exerciseType}`, { withCredentials: true });
+export const getAllWorkouts = () => axios.get(`${API_URL}/all_workouts`, { withCredentials: true });
 
 
 

@@ -5,7 +5,7 @@ import { getExerciseProgress } from '../api';
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip);
 
-function ExerciseProgressPlot({ exerciseType }) {
+function StrengthProgressPlot({ exerciseType }) {
     const [chartData, setChartData] = useState(null);
     const [selectedDateDetails, setSelectedDateDetails] = useState(null);
 
@@ -103,7 +103,7 @@ function ExerciseProgressPlot({ exerciseType }) {
     );
 }
 
-export default ExerciseProgressPlot;
+export default StrengthProgressPlot;
 
 
 

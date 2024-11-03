@@ -50,7 +50,17 @@ function UserAuth() {
     };
 
     return (
-        <Container className="mt-5 d-flex justify-content-center">
+        <Container className="mt-5 d-flex justify-content-center"
+        style={{
+            backgroundImage: `url('/cbum.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            minHeight: '100vh',
+            padding: '20px',
+            backgroundColor: 'lightgray'
+        }}
+        >
             <Row>
                 <Col xs={12} md={8} lg={6}>
                     <Card className="p-4 shadow-sm" style={{ minWidth: '320px' }}>
