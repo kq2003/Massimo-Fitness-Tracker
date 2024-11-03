@@ -68,6 +68,23 @@ function AddSession() {
         navigate('/menu');
     };
 
+    const strengthExerciseTypes = [
+        "Bench Press",
+        "Incline Dumbbell Press",
+        "Squat",
+        "Deadlift",
+        "Overhead Press",
+        "Bicep Curl"
+    ];
+    const aerobicExerciseTypes = [
+        "Running",
+        "Cycling",
+        "Swimming",
+        "Rowing",
+        "Walking"
+    ];
+
+
     return (
         <Container className="mt-4">
             <h1 className="text-center mb-4">Add a Workout Session</h1>
@@ -81,16 +98,21 @@ function AddSession() {
                             <Card.Title>Strength Session {index + 1}</Card.Title>
                             <Row className="mb-2">
                                 <Col md={2}>
-                                    <Form.Group controlId={`strengthType${index}`}>
-                                        <Form.Label>Type</Form.Label>
-                                        <Form.Control
-                                            type="text"
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Exercise Type</Form.Label>
+                                        <Form.Select
                                             name="type"
-                                            placeholder="Type"
                                             value={session.type}
                                             onChange={(e) => handleStrengthChange(index, e)}
-                                        />
+                                            required
+                                        >
+                                            <option value="">Select an exercise</option>
+                                            {strengthExerciseTypes.map((exercise, i) => (
+                                                <option key={i} value={exercise}>{exercise}</option>
+                                            ))}
+                                        </Form.Select>
                                     </Form.Group>
+
                                 </Col>
                                 <Col md={2}>
                                     <Form.Group controlId={`strengthReps${index}`}>
@@ -164,16 +186,22 @@ function AddSession() {
                             <Card.Title>Aerobic Session {index + 1}</Card.Title>
                             <Row className="mb-2">
                                 <Col md={3}>
-                                    <Form.Group controlId={`aerobicType${index}`}>
-                                        <Form.Label>Type</Form.Label>
-                                        <Form.Control
-                                            type="text"
+                                    <Form.Group className="mb-2">
+                                        <Form.Label>Exercise Type</Form.Label>
+                                        <Form.Select
                                             name="type"
-                                            placeholder="Type"
                                             value={session.type}
                                             onChange={(e) => handleAerobicChange(index, e)}
-                                        />
+                                            required
+                                        >
+                                            <option value="">Select an exercise</option>
+                                            {aerobicExerciseTypes.map((exercise, i) => (
+                                                <option key={i} value={exercise}>{exercise}</option>
+                                            ))}
+                                        </Form.Select>
                                     </Form.Group>
+
+
                                 </Col>
                                 <Col md={3}>
                                     <Form.Group controlId={`aerobicDuration${index}`}>

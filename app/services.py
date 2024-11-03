@@ -2,6 +2,7 @@ import boto3
 from config import Config
 from app import db
 from app.models import AerobicTraining, StrengthTraining, DailyData
+from sqlalchemy import distinct
 
 
 # Service for AerobicTraining
@@ -70,4 +71,14 @@ def delete_strength_training(strength_id):
         db.session.commit()
         return True
     return False
+
+def get_strength_training_by_exercise(user_id, exercise_type):
+    return StrengthTraining.query.filter_by(user_id=user_id, type=exercise_type).order_by(StrengthTraining.date).all()
+
+def get_unique_exercise_types():
+    """Fetch unique exercise types from the strength_training table."""
+    types = db.session.query(distinct(StrengthTraining.type)).all()
+    return [type[0] for type in types]
+
+
 

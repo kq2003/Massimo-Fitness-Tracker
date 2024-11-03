@@ -1,7 +1,6 @@
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 const API_URL = 'http://127.0.0.1:5000';
 
 // User authentication
@@ -22,5 +21,17 @@ export const getWorkoutData = () => axios.get(`${API_URL}/workout_data`, { withC
 export const getAerobicData = () => axios.get(`${API_URL}/aerobic_data`, { withCredentials: true });
 export const getStrengthData = () => axios.get(`${API_URL}/strength_data`, { withCredentials: true });
 
-// Get feedback (placeholder for future functionality with AI feedback)
+// Fetch unique exercise types for dropdown
+export const getExerciseTypes = () => axios.get(`${API_URL}/exercise_types`, { withCredentials: true });
+
+// Fetch progress data for a specific exercise type
+export const getExerciseProgress = (exerciseType) =>
+    axios.get(`${API_URL}/workout_progress/${exerciseType}`, { withCredentials: true });
+
+
+// Placeholder for AI feedback functionality
 export const getWorkoutFeedback = () => axios.get(`${API_URL}/workout_feedback`, { withCredentials: true });
+
+
+
+
