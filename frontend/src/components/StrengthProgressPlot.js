@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, Tooltip } from 'chart.js';
-import { getExerciseProgress } from '../api';
+import { getStrengthProgress } from '../api';
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip);
 
@@ -12,7 +12,7 @@ function StrengthProgressPlot({ exerciseType }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await getExerciseProgress(exerciseType);  // Fetches data from workout_progress
+                const response = await getStrengthProgress(exerciseType);  // Fetches data from workout_progress
                 const { dates, first_set_weights, first_set_reps, total_volumes, details } = response.data;
 
                 setChartData({

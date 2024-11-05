@@ -116,25 +116,6 @@ def get_all_workouts(user_id):
     aerobic_sessions = db.session.query(AerobicTraining).filter_by(user_id=user_id).all()
     strength_sessions = db.session.query(StrengthTraining).filter_by(user_id=user_id).all()
 
-    # workouts = []
-    # for session in aerobic_sessions:
-    #     workouts.append({
-    #         "type": session.type,
-    #         "date": session.date.strftime("%Y-%m-%d"),
-    #         "details": f"{session.duration} min, {session.calories_burnt} kcal, HR: {session.heart_rate}"
-    #     })
-
-    # for session in strength_sessions:
-    #     workouts.append({
-    #         "type": session.type,
-    #         "date": session.date.strftime("%Y-%m-%d"),
-    #         "details": f"{session.reps} reps at {session.weight} kg, rest {session.rest_time} sec, Effort: {session.effort_level}"
-    #     })
-
-    # # Sort by date, latest first
-    # workouts.sort(key=lambda x: x['date'], reverse=True)
-    # return workouts
-
     workouts = defaultdict(list)
 
     for session in aerobic_sessions:

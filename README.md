@@ -1,27 +1,72 @@
-# **Massimo: AI-Powered Fitness Tracker (Prototype Phase)**
+# MASSIMO-FITNESS-TRACKER
 
-## **Overview**
-Massimo is a fitness application designed to provide personalized workout feedback using advanced computer vision technology. This prototype focuses on delivering essential features such as exercise form analysis and progress tracking to help users optimize their workout routines in real time.
+## Project Overview
+Massimo-Fitness-Tracker is an AI-powered application that leverages pose estimation and motion tracking to analyze and improve users' workout techniques through video analysis.
 
-## **Features**
-- **Computer Vision Exercise Analysis**: Real-time pose detection for selected exercises (e.g., squats, push-ups) using computer vision models.
-- **Form Correction Feedback**: Basic feedback on exercise form, including joint angle assessment and posture.
-- **Progress Tracking**: Tracks user workout metrics like repetitions and form accuracy over time.
-- **Minimal User Interface**: Allows users to record and upload workout videos and view feedback and progress reports on a dashboard.
+## Directory Structure
 
-## **Technology Stack**
-- **Front-End**:
-  - **React**: Provides a responsive UI for video uploads and displaying workout progress.
-  - **TypeScript**: Ensures type safety and scalability in the front-end codebase.
-- **Back-End**:
-  - **Flask/Django (Python)**: Lightweight API development for handling data storage, user registration, and feedback processing.
-  - **PostgreSQL**: Manages user data, workout logs, and exercise statistics.
-- **Computer Vision**:
-  - **MediaPipe**: Pose detection for real-time exercise analysis.
-  - **TensorFlow**: Backend processing of pose estimation models.
-- **Cloud Infrastructure**:
-  - **Amazon AWS**: Hosting for the back-end, database, and storage (S3, Lambda).
-  - **Codium**: Cloud-optimized development environment.
-- **GitHub Copilot**: Assisting in code generation and development.
+### `/app`
+Contains the Flask application's Python code.
+
+- `__init__.py`: Initializes the Flask app and its configurations.
+- `models.py`: Defines the database models for the application.
+- `routes.py`: Contains all endpoint definitions for the API.
+- `services.py`: Business logic for processing data and interfacing with the database.
+
+### `/flask_session`
+This directory manages the session configurations and data for Flask.
+
+### `/frontend`
+React-based frontend application.
+
+#### `/src`
+Source files for the React application.
+
+- `/api`
+  - `index.js`: API calls interfacing with the Flask backend.
+  
+- `/components`
+  - `AerobicProgressPlot.js`: Component for displaying aerobic workout progress.
+  - `ListAllWorkout.js`: Component to list all workout sessions.
+  - `StrengthProgressPlot.js`: Displays strength training progress.
+  - `UserAuth.js`: Handles user authentication.
+
+- `/pages`
+  - `AddSession.js`: Page to add new workout sessions.
+  - `Menu.js`: Main menu for navigation.
+  - `QueryData.js`: Interface for querying detailed data.
+
+- `App.js`: Root component integrating all pages.
+- `index.js`: Entry point for the React app.
+
+### `/public`
+Stores static files like HTML, logos, and the manifest.
+
+### `/node_modules`
+Dependencies for the React application (not tracked in version control).
+
+## Setup Instructions
+
+1. **Backend Setup**
+   - Navigate to the `app` directory.
+   - Set up a virtual environment and install dependencies.
+   - Ensure the database is configured according to `models.py`.
+   - Run `flask run` to start the backend server.
+
+2. **Frontend Setup**
+   - Navigate to the `frontend` directory.
+   - Run `npm install` to install dependencies.
+   - Use `npm start` to launch the React application.
+
+## Usage
+
+- Start both the Flask backend and the React frontend.
+- Navigate to `localhost:3000` to access the web interface.
+
+## Contributing
+Contributions are welcome. Please fork the project and submit a pull request.
+
+## License
+Specify your project's license here, typically MIT for open-source projects.
 
 

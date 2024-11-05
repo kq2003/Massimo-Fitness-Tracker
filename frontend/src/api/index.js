@@ -16,10 +16,10 @@ export const addStrengthWorkout = (workoutData) => axios.post(`${API_URL}/add_st
 export const startWorkoutSession = () => axios.post(`${API_URL}/start_session`, {}, { withCredentials: true });
 export const endWorkoutSession = () => axios.post(`${API_URL}/end_session`, {}, { withCredentials: true });
 
-// Query workout data
-export const getWorkoutData = () => axios.get(`${API_URL}/workout_data`, { withCredentials: true });
-export const getAerobicData = () => axios.get(`${API_URL}/aerobic_data`, { withCredentials: true });
-export const getStrengthData = () => axios.get(`${API_URL}/strength_data`, { withCredentials: true });
+// // Query workout data
+// export const getWorkoutData = () => axios.get(`${API_URL}/workout_data`, { withCredentials: true });
+// export const getAerobicData = () => axios.get(`${API_URL}/aerobic_data`, { withCredentials: true });
+// export const getStrengthData = () => axios.get(`${API_URL}/strength_data`, { withCredentials: true });
 
 // Fetch unique strength exercise types
 export const getStrengthExerciseTypes = () => axios.get(`${API_URL}/strength_exercise_types`, { withCredentials: true });
@@ -28,14 +28,17 @@ export const getStrengthExerciseTypes = () => axios.get(`${API_URL}/strength_exe
 export const getAerobicExerciseTypes = () => axios.get(`${API_URL}/aerobic_exercise_types`, { withCredentials: true });
 
 // Fetch progress data for a specific exercise type
-export const getExerciseProgress = (exerciseType) =>
+export const getStrengthProgress = (exerciseType) =>
     axios.get(`${API_URL}/workout_progress/${exerciseType}`, { withCredentials: true });
 
 
 // Placeholder for AI feedback functionality
 export const getWorkoutFeedback = () => axios.get(`${API_URL}/workout_feedback`, { withCredentials: true });
 
+// Fetch aerobic workout progress
 export const getAerobicProgress = (exerciseType) => axios.get(`${API_URL}/aerobic_progress/${exerciseType}`, { withCredentials: true });
+
+// get details for all workouts
 export const getAllWorkouts = () => axios.get(`${API_URL}/all_workouts`, { withCredentials: true });
 
 
