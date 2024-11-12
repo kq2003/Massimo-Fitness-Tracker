@@ -9,11 +9,13 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    location_consent = db.Column(db.Boolean, default=None)
 
     # Relationships
     daily_data = db.relationship('DailyData', backref='user', lazy=True)  # Fix backref to 'user'
     aerobic_trainings = db.relationship('AerobicTraining', backref='user', lazy=True)  # Fix backref to 'user'
     strength_trainings = db.relationship('StrengthTraining', backref='user', lazy=True)  # Fix backref to 'user'
+    locations = db.relationship('Location', backref='user', lazy=True)
 
 # Aerobic training schema
 class AerobicTraining(db.Model):
@@ -48,6 +50,16 @@ class DailyData(db.Model):
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
+
+# Record user location data:
+
+class Location(db.Model):
+    __tablename__ = 'locations'
+    id = db.Column(db.Integer, primary_key=True)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 
 

@@ -41,6 +41,14 @@ export const getAerobicProgress = (exerciseType) => axios.get(`${API_URL}/aerobi
 // get details for all workouts
 export const getAllWorkouts = () => axios.get(`${API_URL}/all_workouts`, { withCredentials: true });
 
+// Update location consent
+export const updateLocationConsent = (consent) => 
+    axios.post(`${API_URL}/update_location_consent`, { consent }, { withCredentials: true });
+
+// Update location
+export const updateLocation = (locationData) => 
+    axios.post(`${API_URL}/update_location`, locationData, { withCredentials: true });
+
 
 
 
