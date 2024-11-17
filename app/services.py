@@ -4,6 +4,25 @@ from app import db
 from app.models import AerobicTraining, StrengthTraining, DailyData
 from sqlalchemy import distinct
 from collections import defaultdict
+import dspy
+from llama_index import GPTVectorStoreIndex, Document
+from app.models import AerobicTraining, StrengthTraining
+from datetime import datetime
+
+def query_workout_data(index, workout_type=None, start_date=None, end_date=None):
+    # Build the base query
+    query = ""
+    
+    # Add filtering based on workout type (aerobic/strength)
+    if workout_type:
+        query += f"workout type: {workout_type} "
+    
+    # Add filtering based on date range (if provided)
+    if start_date and end_date:
+        query += f"from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+    
+    # Query the index with the generated query string
+    return index.query(query)
 
 
 # Service for AerobicTraining
@@ -21,6 +40,14 @@ def add_aerobic_training(data, user_id):
 
 def get_aerobic_training(user_id):
     return AerobicTraining.query.filter_by(user_id=user_id).all()
+
+
+def get_workout_data(user_id):
+    # Fetch aerobic and strength data for the user
+    aerobic_sessions = get_aerobic_training(user_id)
+    strength_sessions = get_strength_training(user_id)
+    return aerobic_sessions, strength_sessions
+
 
 def update_aerobic_training(aerobic_id, updates):
     session = AerobicTraining.query.filter_by(id=aerobic_id).first()
@@ -143,7 +170,67 @@ def get_all_workouts(user_id):
 
     return dict(workouts)
 
+
+# Create documents from aerobic and strength training data
+def build_documents(aerobic_sessions, strength_sessions):
+    documents = []
+    for session in aerobic_sessions:
+        doc = Document(
+            text=f"Aerobic Training: {session.type}, Duration: {session.duration} min, Calories Burnt: {session.calories_burnt}")
+        documents.append(doc)
     
+    for session in strength_sessions:
+        doc = Document(
+            text=f"Strength Training: {session.type}, Reps: {session.reps}, Weight: {session.weight} kg")
+        documents.append(doc)
+        
+    return documents
+
+# Build the index from the workout data
+def build_index(aerobic_sessions, strength_sessions):
+    documents = build_documents(aerobic_sessions, strength_sessions)
+    index = GPTVectorStoreIndex.from_documents(documents)
+    return index
+
+# Query workout data using the built index
+def query_workout_data(index, query_text):
+    return index.query(query_text)
+
+def generate_feedback(workout_data):
+    # You can include more logic based on user's workout performance
+    prompt = f"Based on the user's workout data: {workout_data}, provide feedback and suggest improvements."
+    
+    # Generate feedback using Llama or another LLM
+    feedback = dspy.LM("openai/gpt-4o-mini").predict(prompt)
+    
+    return feedback
+    
+def workout_recommendation_pipeline(user_id):
+    # Step 1: Retrieve workout data using LlamaIndex
+    aerobic_sessions, strength_sessions = get_workout_data(user_id)
+    index = build_index(aerobic_sessions, strength_sessions)
+    workout_data = query_workout_data(index, query_text="last 7 days workout data")
+    
+    # Step 2: Use DSPy to generate feedback based on retrieved workout data
+    feedback = generate_feedback(workout_data)
+    
+    return feedback
+
+
+def workout_recommendation_pipeline(user_id, workout_type=None, start_date=None, end_date=None):
+    # Step 1: Retrieve workout data using LlamaIndex
+    aerobic_sessions, strength_sessions = get_workout_data(user_id)
+    
+    # Build the index from the aerobic and strength sessions
+    index = build_index(aerobic_sessions, strength_sessions)
+    
+    # Step 2: Query the index based on dynamic parameters
+    workout_data = query_workout_data(index, workout_type=workout_type, start_date=start_date, end_date=end_date)
+    
+    # Step 3: Use DSPy to generate personalized feedback based on retrieved workout data
+    feedback = generate_feedback(workout_data)
+    
+    return feedback
 
 
 

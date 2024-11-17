@@ -6,7 +6,8 @@ from config import Config
 from dotenv import load_dotenv
 from flask_migrate import Migrate
 from flask_cors import CORS
-from flask_session import Session  # Import Flask-Session
+from flask_session import Session 
+
 
 load_dotenv()
 

@@ -4,10 +4,12 @@ from app.models import User
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
     add_strength_training, get_strength_training, update_strength_training, delete_strength_training, get_strength_training_by_exercise,
-    get_unique_aerobic_exercise_types, get_unique_strength_exercise_types, get_aerobic_progress, get_all_workouts
+    get_unique_aerobic_exercise_types, get_unique_strength_exercise_types, get_aerobic_progress, get_all_workouts,
+    workout_recommendation_pipeline
 )
 from app import bcrypt
 from flask_cors import cross_origin
+from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -53,7 +55,6 @@ def add_aerobic():
     return jsonify({'message': 'Aerobic training added', 'id': aerobic_session.id}), 201
 
 @main.route('/get_aerobic', methods=['GET'])
-# @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 @login_required
 def get_aerobic():
     sessions = get_aerobic_training(current_user.id)
@@ -61,7 +62,6 @@ def get_aerobic():
     return jsonify(result), 200
 
 @main.route('/update_aerobic/<int:aerobic_id>', methods=['PUT'])
-# @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 @login_required
 def update_aerobic(aerobic_id):
     updates = request.get_json()
@@ -71,7 +71,6 @@ def update_aerobic(aerobic_id):
     return jsonify({'message': 'Session not found'}), 404
 
 @main.route('/delete_aerobic/<int:aerobic_id>', methods=['DELETE'])
-# @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 @login_required
 def delete_aerobic(aerobic_id):
     success = delete_aerobic_training(aerobic_id)
@@ -169,6 +168,31 @@ def all_workouts():
     """Route for fetching all workouts for the listed display view."""
     workouts = get_all_workouts(current_user.id)
     return jsonify(workouts), 200
+
+@main.route('/workout_recommendation', methods=['GET'])
+@login_required
+def workout_recommendation():
+    # Parse query parameters from the request
+    workout_type = request.args.get('workout_type', None)  # Either 'aerobic' or 'strength'
+    start_date_str = request.args.get('start_date', None)  # Format: YYYY-MM-DD
+    end_date_str = request.args.get('end_date', None)  # Format: YYYY-MM-DD
+    
+    # Convert date strings to datetime objects if provided
+    start_date = datetime.strptime(start_date_str, "%Y-%m-%d") if start_date_str else None
+    end_date = datetime.strptime(end_date_str, "%Y-%m-%d") if end_date_str else None
+    
+    # Call the recommendation pipeline function from services.py
+    feedback = workout_recommendation_pipeline(
+        current_user.id, 
+        workout_type=workout_type, 
+        start_date=start_date, 
+        end_date=end_date
+    )
+    
+    return jsonify({"recommendation": feedback}), 200
+
+
+
 
 
 
