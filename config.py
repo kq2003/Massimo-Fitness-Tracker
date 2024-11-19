@@ -10,5 +10,7 @@ class Config:
     S3_ACCESS_KEY = os.environ.get('S3_ACCESS_KEY')
     S3_SECRET_KEY = os.environ.get('S3_SECRET_KEY')
     S3_REGION = os.environ.get('S3_REGION')
+    OPENAI_API_KEY= os.getenv('OPENAI_API_KEY')
+
 
 

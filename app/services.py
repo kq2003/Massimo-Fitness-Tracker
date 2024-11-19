@@ -5,9 +5,16 @@ from app.models import AerobicTraining, StrengthTraining, DailyData
 from sqlalchemy import distinct
 from collections import defaultdict
 import dspy
-from llama_index import GPTVectorStoreIndex, Document
-from app.models import AerobicTraining, StrengthTraining
-from datetime import datetime
+from llama_index.core import PromptTemplate
+from llama_index.llms.openai import OpenAI
+from llama_index.core.llms import ChatMessage, MessageRole
+
+from transformers import pipeline
+
+
+# from llama_index import GPTVectorStoreIndex, Document
+# from app.models import AerobicTraining, StrengthTraining
+# from datetime import datetime
 
 def query_workout_data(index, workout_type=None, start_date=None, end_date=None):
     # Build the base query
@@ -171,71 +178,153 @@ def get_all_workouts(user_id):
     return dict(workouts)
 
 
-# Create documents from aerobic and strength training data
-def build_documents(aerobic_sessions, strength_sessions):
-    documents = []
-    for session in aerobic_sessions:
-        doc = Document(
-            text=f"Aerobic Training: {session.type}, Duration: {session.duration} min, Calories Burnt: {session.calories_burnt}")
-        documents.append(doc)
-    
-    for session in strength_sessions:
-        doc = Document(
-            text=f"Strength Training: {session.type}, Reps: {session.reps}, Weight: {session.weight} kg")
-        documents.append(doc)
-        
-    return documents
+# # Define a prompt template for recommendations
+# recommendation_prompt = PromptTemplate("""
+# You are a fitness expert AI assistant. Based on the user's workout history, provide personalized advice for improving their performance and achieving their fitness goals.
 
-# Build the index from the workout data
-def build_index(aerobic_sessions, strength_sessions):
-    documents = build_documents(aerobic_sessions, strength_sessions)
+# User Data:
+# - Strength Exercises: {strength_exercises}
+# - Aerobic Exercises: {aerobic_exercises}
+# - Recent Progress: {recent_progress}
+# - Daily Metrics: {daily_metrics}
+
+# Recommendations:
+# """)
+# def generate_llm_recommendation(user_id, user_input):
+#     # Fetch user strength and aerobic training data
+#     strength_sessions = get_strength_training(user_id)
+#     # aerobic_sessions = get_aerobic_training(user_id)
+
+#     # Prepare summaries for strength and aerobic data
+#     if not strength_sessions:
+#         return "No workout data available for recommendations."
+
+#     strength_summary = [
+#         {
+#             "type": s.type,
+#             "reps": s.reps,
+#             "weight": s.weight,
+#             "date": s.date.strftime("%Y-%m-%d"),
+#         }
+#         for s in strength_sessions
+#     ]
+
+#     # aerobic_summary = [
+#     #     {
+#     #         "type": a.type,
+#     #         "duration": a.duration,
+#     #         "calories_burnt": a.calories_burnt,
+#     #         "date": a.date.strftime("%Y-%m-%d"),
+#     #     }
+#     #     for a in aerobic_sessions
+#     # ]
+
+#     # Construct LLM prompt
+#     prompt = f"""
+#     You are a fitness expert AI assistant. Based on the user's workout history below, provide personalized and specific advice (list out previous weights and give specific weights for next workouts) to improve their performance for the next workout or long run; if you realized a plateau in strength improvements, please adjust workout accordingly (lower weights more volume):
+
+#     Strength Workouts:
+#     {strength_summary if strength_summary else "No strength data available."}
+
+#     Recommendations:
+#     """
+
+#         # Construct LLM messages using ChatMessage
+#     messages = [
+#         ChatMessage(role=MessageRole.SYSTEM, content="You are a fitness expert AI assistant."),
+#         ChatMessage(role=MessageRole.USER, content=prompt + user_input)
+#     ]
+
+#     # Initialize the LLM
+#     llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
+#     response = llm.chat(messages)
+
+#     return response.message.content
+
+#     # generator = pipeline("text-generation", model="gpt2")
+#     # response = generator(prompt, max_length=300, num_return_sequences=1)
+#     # return response[0]["generated_text"]
+
+
+
+from llama_index.core import SimpleDirectoryReader, GPTVectorStoreIndex
+from pathlib import Path
+
+def create_pdf_index(pdf_path: str):
+    """
+    Create an index for the given PDF file using LlamaIndex.
+    """
+    # Check if the PDF exists
+    if not Path(pdf_path).is_file():
+        raise FileNotFoundError(f"{pdf_path} not found.")
+    
+    # Load the PDF into LlamaIndex
+    documents = SimpleDirectoryReader(input_files=[pdf_path]).load_data()
+    
+    # Create an index from the PDF documents
     index = GPTVectorStoreIndex.from_documents(documents)
     return index
 
-# Query workout data using the built index
-def query_workout_data(index, query_text):
-    return index.query(query_text)
+# Create the index (ensure this runs only once and is reused)
+pdf_index = create_pdf_index("/Users/tonyqin/Desktop/progressive_overload.pdf")
 
-def generate_feedback(workout_data):
-    # You can include more logic based on user's workout performance
-    prompt = f"Based on the user's workout data: {workout_data}, provide feedback and suggest improvements."
-    
-    # Generate feedback using Llama or another LLM
-    feedback = dspy.LM("openai/gpt-4o-mini").predict(prompt)
-    
-    return feedback
-    
-def workout_recommendation_pipeline(user_id):
-    # Step 1: Retrieve workout data using LlamaIndex
-    aerobic_sessions, strength_sessions = get_workout_data(user_id)
-    index = build_index(aerobic_sessions, strength_sessions)
-    workout_data = query_workout_data(index, query_text="last 7 days workout data")
-    
-    # Step 2: Use DSPy to generate feedback based on retrieved workout data
-    feedback = generate_feedback(workout_data)
-    
-    return feedback
+def generate_llm_recommendation(user_id, user_input):
+    """
+    Generate personalized recommendations and answers based on the user's workout data and PDF knowledge.
+    """
+    # Fetch user strength training data
+    strength_sessions = get_strength_training(user_id)
 
+    if not strength_sessions:
+        return "No workout data available for recommendations."
 
-def workout_recommendation_pipeline(user_id, workout_type=None, start_date=None, end_date=None):
-    # Step 1: Retrieve workout data using LlamaIndex
-    aerobic_sessions, strength_sessions = get_workout_data(user_id)
-    
-    # Build the index from the aerobic and strength sessions
-    index = build_index(aerobic_sessions, strength_sessions)
-    
-    # Step 2: Query the index based on dynamic parameters
-    workout_data = query_workout_data(index, workout_type=workout_type, start_date=start_date, end_date=end_date)
-    
-    # Step 3: Use DSPy to generate personalized feedback based on retrieved workout data
-    feedback = generate_feedback(workout_data)
-    
-    return feedback
+    # Prepare a summary of strength workouts
+    strength_summary = [
+        {
+            "type": s.type,
+            "reps": s.reps,
+            "weight": s.weight,
+            "date": s.date.strftime("%Y-%m-%d"),
+        }
+        for s in strength_sessions
+    ]
 
+    # Use the query engine to query the PDF index
+    pdf_query_engine = pdf_index.as_query_engine()
+    pdf_response = pdf_query_engine.query(
+        f"What are some insights from progressive overload related to: {user_input}?"
+    )
 
+    # Construct the prompt
+    prompt = f"""
+    You are a fitness expert AI assistant. Your task is to provide highly personalized advice based on the user's past workout data and the principles of progressive overload. 
+    Answer user-specific questions, provide feedback, and create targeted recommendations.
 
+    User's Workout History:
+    {strength_summary if strength_summary else "No strength data available."}
 
-    
+    Insights from Document:
+    {pdf_response.response}
 
+    User Query:
+    {user_input}
 
+    Guidelines:
+    1. Tailor your response specifically to the user's question, incorporating their workout data and trends.
+    2. If relevant, include progressive overload principles from the document to enhance your advice.
+    3. Avoid generic responses; be as specific as possible.
+    4. Provide actionable recommendations, plans, or feedback as needed.
+
+    Answer:
+    """
+
+    # Use OpenAI for generating the recommendation
+    messages = [
+        ChatMessage(role=MessageRole.SYSTEM, content="You are a fitness expert AI assistant."),
+        ChatMessage(role=MessageRole.USER, content=prompt)
+    ]
+
+    llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
+    response = llm.chat(messages)
+    return response.message.content
 

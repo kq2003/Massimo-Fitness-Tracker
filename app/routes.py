@@ -5,7 +5,7 @@ from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
     add_strength_training, get_strength_training, update_strength_training, delete_strength_training, get_strength_training_by_exercise,
     get_unique_aerobic_exercise_types, get_unique_strength_exercise_types, get_aerobic_progress, get_all_workouts,
-    workout_recommendation_pipeline
+    generate_llm_recommendation
 )
 from app import bcrypt
 from flask_cors import cross_origin
@@ -169,27 +169,36 @@ def all_workouts():
     workouts = get_all_workouts(current_user.id)
     return jsonify(workouts), 200
 
-@main.route('/workout_recommendation', methods=['GET'])
+
+# @main.route('/recommendation', methods=['GET'])
+# @login_required
+# def recommendation():
+#     try:
+#         # Extract user_input from query parameters
+#         user_input = request.args.get("user_input")
+#         if not user_input:
+#             return jsonify({"error": "Missing 'user_input' query parameter"}), 400
+
+#         # Generate the recommendation
+#         recommendation = generate_llm_recommendation(current_user.id, user_input)
+#         return jsonify({"recommendation": recommendation}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+
+@main.route('/recommendation', methods=['GET'])
 @login_required
-def workout_recommendation():
-    # Parse query parameters from the request
-    workout_type = request.args.get('workout_type', None)  # Either 'aerobic' or 'strength'
-    start_date_str = request.args.get('start_date', None)  # Format: YYYY-MM-DD
-    end_date_str = request.args.get('end_date', None)  # Format: YYYY-MM-DD
+def recommendation():
+    user_input = request.args.get("user_input", "No specific input provided.")
     
-    # Convert date strings to datetime objects if provided
-    start_date = datetime.strptime(start_date_str, "%Y-%m-%d") if start_date_str else None
-    end_date = datetime.strptime(end_date_str, "%Y-%m-%d") if end_date_str else None
-    
-    # Call the recommendation pipeline function from services.py
-    feedback = workout_recommendation_pipeline(
-        current_user.id, 
-        workout_type=workout_type, 
-        start_date=start_date, 
-        end_date=end_date
-    )
-    
-    return jsonify({"recommendation": feedback}), 200
+    try:
+        # Generate the recommendation using both user data and PDF insights
+        recommendation = generate_llm_recommendation(current_user.id, user_input)
+        return jsonify({"recommendation": recommendation}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 

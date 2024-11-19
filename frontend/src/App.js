@@ -4,6 +4,7 @@ import UserAuth from './components/UserAuth';
 import Menu from './pages/Menu';  // Main menu after login
 import QueryData from './pages/QueryData';  // Placeholder for data visualization
 import AddSession from './pages/AddSession';  // Placeholder for adding workout sessions
+import RecommendationAgent from './components/RecommendationAgent';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -22,6 +23,8 @@ function App() {
 
                 {/* Add Session page for adding workouts */}
                 <Route path="/add-session" element={<AddSession />} />
+
+                <Route path="/recommendation-agent" element={<RecommendationAgent />} />
             </Routes>
         </Router>
     );
