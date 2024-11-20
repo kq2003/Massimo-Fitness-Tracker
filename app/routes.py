@@ -9,7 +9,7 @@ from app.services import (
 )
 from app import bcrypt
 from flask_cors import cross_origin
-from datetime import datetime
+# from datetime import datetime
 
 main = Blueprint('main', __name__)
 
@@ -170,33 +170,21 @@ def all_workouts():
     return jsonify(workouts), 200
 
 
-# @main.route('/recommendation', methods=['GET'])
-# @login_required
-# def recommendation():
-#     try:
-#         # Extract user_input from query parameters
-#         user_input = request.args.get("user_input")
-#         if not user_input:
-#             return jsonify({"error": "Missing 'user_input' query parameter"}), 400
-
-#         # Generate the recommendation
-#         recommendation = generate_llm_recommendation(current_user.id, user_input)
-#         return jsonify({"recommendation": recommendation}), 200
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
-
-
 @main.route('/recommendation', methods=['GET'])
 @login_required
 def recommendation():
-    user_input = request.args.get("user_input", "No specific input provided.")
-    
     try:
-        # Generate the recommendation using both user data and PDF insights
-        recommendation = generate_llm_recommendation(current_user.id, user_input)
+        # Extract user_input from query parameters
+        user_input = request.args.get("user_input")
+        if not user_input:
+            return jsonify({"error": "Missing 'user_input' query parameter"}), 400
+
+        # Generate the recommendation
+        recommendation = generate_llm_recommendation(current_user.id, user_input, indices_dir='./indices')
         return jsonify({"recommendation": recommendation}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 

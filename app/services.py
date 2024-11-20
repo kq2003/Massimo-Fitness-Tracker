@@ -1,15 +1,11 @@
-import boto3
 from config import Config
 from app import db
-from app.models import AerobicTraining, StrengthTraining, DailyData
-from sqlalchemy import distinct
+from app.models import AerobicTraining, StrengthTraining
 from collections import defaultdict
-import dspy
-from llama_index.core import PromptTemplate
+# from llama_index.core import PromptTemplate
 from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
-
-from transformers import pipeline
+import time
 
 
 # from llama_index import GPTVectorStoreIndex, Document
@@ -178,99 +174,13 @@ def get_all_workouts(user_id):
     return dict(workouts)
 
 
-# # Define a prompt template for recommendations
-# recommendation_prompt = PromptTemplate("""
-# You are a fitness expert AI assistant. Based on the user's workout history, provide personalized advice for improving their performance and achieving their fitness goals.
-
-# User Data:
-# - Strength Exercises: {strength_exercises}
-# - Aerobic Exercises: {aerobic_exercises}
-# - Recent Progress: {recent_progress}
-# - Daily Metrics: {daily_metrics}
-
-# Recommendations:
-# """)
-# def generate_llm_recommendation(user_id, user_input):
-#     # Fetch user strength and aerobic training data
-#     strength_sessions = get_strength_training(user_id)
-#     # aerobic_sessions = get_aerobic_training(user_id)
-
-#     # Prepare summaries for strength and aerobic data
-#     if not strength_sessions:
-#         return "No workout data available for recommendations."
-
-#     strength_summary = [
-#         {
-#             "type": s.type,
-#             "reps": s.reps,
-#             "weight": s.weight,
-#             "date": s.date.strftime("%Y-%m-%d"),
-#         }
-#         for s in strength_sessions
-#     ]
-
-#     # aerobic_summary = [
-#     #     {
-#     #         "type": a.type,
-#     #         "duration": a.duration,
-#     #         "calories_burnt": a.calories_burnt,
-#     #         "date": a.date.strftime("%Y-%m-%d"),
-#     #     }
-#     #     for a in aerobic_sessions
-#     # ]
-
-#     # Construct LLM prompt
-#     prompt = f"""
-#     You are a fitness expert AI assistant. Based on the user's workout history below, provide personalized and specific advice (list out previous weights and give specific weights for next workouts) to improve their performance for the next workout or long run; if you realized a plateau in strength improvements, please adjust workout accordingly (lower weights more volume):
-
-#     Strength Workouts:
-#     {strength_summary if strength_summary else "No strength data available."}
-
-#     Recommendations:
-#     """
-
-#         # Construct LLM messages using ChatMessage
-#     messages = [
-#         ChatMessage(role=MessageRole.SYSTEM, content="You are a fitness expert AI assistant."),
-#         ChatMessage(role=MessageRole.USER, content=prompt + user_input)
-#     ]
-
-#     # Initialize the LLM
-#     llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
-#     response = llm.chat(messages)
-
-#     return response.message.content
-
-#     # generator = pipeline("text-generation", model="gpt2")
-#     # response = generator(prompt, max_length=300, num_return_sequences=1)
-#     # return response[0]["generated_text"]
-
-
-
-from llama_index.core import SimpleDirectoryReader, GPTVectorStoreIndex
 from pathlib import Path
+from llama_index.core import StorageContext, VectorStoreIndex
+from llama_index.core import load_index_from_storage
 
-def create_pdf_index(pdf_path: str):
+def generate_llm_recommendation(user_id, user_input, indices_dir: str):
     """
-    Create an index for the given PDF file using LlamaIndex.
-    """
-    # Check if the PDF exists
-    if not Path(pdf_path).is_file():
-        raise FileNotFoundError(f"{pdf_path} not found.")
-    
-    # Load the PDF into LlamaIndex
-    documents = SimpleDirectoryReader(input_files=[pdf_path]).load_data()
-    
-    # Create an index from the PDF documents
-    index = GPTVectorStoreIndex.from_documents(documents)
-    return index
-
-# Create the index (ensure this runs only once and is reused)
-pdf_index = create_pdf_index("/Users/tonyqin/Desktop/progressive_overload.pdf")
-
-def generate_llm_recommendation(user_id, user_input):
-    """
-    Generate personalized recommendations and answers based on the user's workout data and PDF knowledge.
+    Generate personalized recommendations and answers based on the user's workout data and multiple PDF indices.
     """
     # Fetch user strength training data
     strength_sessions = get_strength_training(user_id)
@@ -289,42 +199,67 @@ def generate_llm_recommendation(user_id, user_input):
         for s in strength_sessions
     ]
 
-    # Use the query engine to query the PDF index
-    pdf_query_engine = pdf_index.as_query_engine()
-    pdf_response = pdf_query_engine.query(
-        f"What are some insights from progressive overload related to: {user_input}?"
-    )
+    # Load all indices from the specified directory
+    indices = []
+    start_time = time.time()
+    index_paths = Path(indices_dir).glob("*")  # Assuming each index is in a separate directory
+    print(f"Directory scanning time: {time.time() - start_time}s")
+    for index_path in index_paths:
+        if index_path.is_dir():
+            try:
+                print(f"Attempting to load index from: {index_path}")
+                storage_context = StorageContext.from_defaults(persist_dir=str(index_path))
+                index = load_index_from_storage(storage_context)
+                indices.append(index)
+                print(f"Successfully loaded index from: {index_path}")
+            except Exception as e:
+                print(f"Error loading index from {index_path}: {e}")
+    
+    if not indices:
+        return "No indices available for querying."
+
+    # Aggregate responses from all indices
+    pdf_responses = []
+    for index in indices:
+        pdf_query_engine = index.as_query_engine()
+        try:
+            pdf_response = pdf_query_engine.query(
+                f"What are some insights related to: {user_input}?"
+            )
+            pdf_responses.append(pdf_response.response)
+        except Exception as e:
+            print(f"Error querying index: {e}")
+            pdf_responses.append("Error querying this index.")
+
+    # Combine all PDF insights
+    combined_pdf_responses = "\n".join(pdf_responses)
 
     # Construct the prompt
+   # Construct the refined prompt
     prompt = f"""
-    You are a fitness expert AI assistant. Your task is to provide highly personalized advice based on the user's past workout data and the principles of progressive overload. 
-    Answer user-specific questions, provide feedback, and create targeted recommendations.
+    You are a personal fitness assistant helping users optimize their workouts. Use the user's workout data and insights from documents to answer their question and provide practical advice.
 
     User's Workout History:
-    {strength_summary if strength_summary else "No strength data available."}
+    {strength_summary}
 
-    Insights from Document:
-    {pdf_response.response}
+    Insights from Documents:
+    {combined_pdf_responses}
 
     User Query:
     {user_input}
 
-    Guidelines:
-    1. Tailor your response specifically to the user's question, incorporating their workout data and trends.
-    2. If relevant, include progressive overload principles from the document to enhance your advice.
-    3. Avoid generic responses; be as specific as possible.
-    4. Provide actionable recommendations, plans, or feedback as needed.
-
-    Answer:
+    Provide concise, actionable advice specific to the user's situation. It must NOT be general; must be specific and related to user's data and workout history.
     """
+
 
     # Use OpenAI for generating the recommendation
     messages = [
-        ChatMessage(role=MessageRole.SYSTEM, content="You are a fitness expert AI assistant."),
+        ChatMessage(role=MessageRole.SYSTEM, content="You are a personal fitness assistant."),
         ChatMessage(role=MessageRole.USER, content=prompt)
     ]
 
     llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
     response = llm.chat(messages)
     return response.message.content
+
 
