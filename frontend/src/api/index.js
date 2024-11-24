@@ -43,4 +43,9 @@ export const getAllWorkouts = () => axios.get(`${API_URL}/all_workouts`, { withC
 
 
 
-
+// Recommendation API
+export const getRecommendation = (userInput) =>
+    axios.get(`${API_URL}/recommendation`, {
+        params: { user_input: userInput },
+        withCredentials: true,
+    });
