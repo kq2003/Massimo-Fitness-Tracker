@@ -13,6 +13,10 @@ function Menu() {
         navigate('/add-session');
     };
 
+    const handleRecommendation = () => {
+        navigate('/recommendation-agent');
+    };
+
     const handleLogout = () => {
         navigate('/');
     };
@@ -30,6 +34,16 @@ function Menu() {
                             <Button variant="success" onClick={handleAddSession} className="w-100 mb-3" style={{ minWidth: '120px' }}>
                                 Add a Session
                             </Button>
+                            
+                            <Button
+                                variant="info"
+                                onClick={handleRecommendation}
+                                className="w-100 mb-3"
+                                style={{ minWidth: '120px' }}
+                            >
+                                Recommendation Agent
+                            </Button>
+
                             <Button variant="danger" onClick={handleLogout} className="w-100" style={{ minWidth: '120px' }}>
                                 Logout
                             </Button>
