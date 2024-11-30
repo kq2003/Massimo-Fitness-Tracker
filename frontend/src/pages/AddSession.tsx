@@ -52,8 +52,10 @@ const AddSession: React.FC = () => {
             }
             alert('Aerobic workouts added successfully!');
             setAerobicSessions([]);
-        } catch (error) {
-            alert('Failed to add aerobic workouts.');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+            alert(`Failed to add strength workouts: ${error.message}`);
+            }
         }
     };
 
@@ -64,9 +66,12 @@ const AddSession: React.FC = () => {
             }
             alert('Strength workouts added successfully!');
             setStrengthSessions([]);
-        } catch (error) {
-            alert('Failed to add strength workouts.');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+            alert(`Failed to add strength workouts: ${error.message}`);
+            }
         }
+
     };
 
     const deleteAerobicSession = (index: number) => {

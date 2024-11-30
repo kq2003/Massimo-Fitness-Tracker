@@ -28,7 +28,9 @@ interface SessionDetail {
 const AerobicProgressPlot: React.FC<AerobicProgressPlotProps> = ({ exerciseType }) => {
     const [chartData, setChartData] = useState<ChartData | null>(null);
     const [selectedDateDetails, setSelectedDateDetails] = useState<SessionDetail[] | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -72,6 +74,7 @@ const AerobicProgressPlot: React.FC<AerobicProgressPlotProps> = ({ exerciseType 
         plugins: {
             tooltip: { enabled: true },
         },
+        
         onClick: (event: any, elements: any[]) => {
             if (elements.length > 0 && chartData) {
                 const index = elements[0].index;

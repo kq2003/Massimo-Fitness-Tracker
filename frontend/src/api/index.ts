@@ -75,3 +75,9 @@ export const getAerobicProgress = (exerciseType: ExerciseType): Promise<AxiosRes
 // Get details for all workouts
 export const getAllWorkouts = (): Promise<AxiosResponse> =>
     axios.get(`${API_URL}/all_workouts`, { withCredentials: true });
+
+export const getRecommendation = (userInput: string): Promise<AxiosResponse> =>
+    axios.get<AxiosResponse>(`${API_URL}/recommendation`, {
+      params: { user_input: userInput },
+      withCredentials: true,
+    })
