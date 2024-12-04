@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerUser, loginUser, logoutUser } from '../api';
+import { registerUser, loginUser, logoutUser, updateLocationConsent, updateLocation } from '../api';
 import { Container, Row, Col, Form, Button, Card, Modal } from 'react-bootstrap';
 
 function UserAuth() {
@@ -38,14 +38,14 @@ function UserAuth() {
             const response = await loginUser(loginData);
             setIsLoggedIn(true);
 
-            if (response.data.needsConsent) {
+            if (!response.data.locationConsent) {
                 setShowLocationConsent(true);
-            } else if (response.data.locationConsent) {
+            } else {
                 collectLocation();
+                navigate('/menu');
             }
 
             alert('Logged in successfully!');
-            navigate('/menu');
         } catch (error) {
             alert('Invalid login credentials');
         }
