@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, make_response
 from flask_login import login_required, current_user, login_user, logout_user
-from app.models import User
+from app.models import User, Location
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
     add_strength_training, get_strength_training, update_strength_training, delete_strength_training, get_strength_training_by_exercise,
@@ -30,11 +30,15 @@ def register():
 # @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(email=data['email']).first()
+    user = User.query.filter_by(email=data['email']).first() #TODO Alex: is filtering by email enough?
     
     if user and bcrypt.check_password_hash(user.password, data['password']):
         login_user(user)
-        response = make_response(jsonify({'message': 'Logged in successfully'}), 200)
+        response = make_response(jsonify({
+            'message': 'Logged in successfully',
+            'locationConsent': user.location_consent,
+            'needsConsent': user.location_consent is None
+        }), 200)
         return response
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
@@ -168,6 +172,33 @@ def all_workouts():
     """Route for fetching all workouts for the listed display view."""
     workouts = get_all_workouts(current_user.id)
     return jsonify(workouts), 200
+
+@main.route('/update_location_consent', methods=['POST'])
+@login_required
+def update_location_consent():
+    data = request.get_json()
+    current_user.location_consent = data.get('consent')
+    from app import db #TODO Alex: is this valid? Should I implement another layer at service?
+    db.session.commit()
+    return jsonify({'message': 'Location consent updated'}), 200
+
+
+@main.route('/update_location', methods=['POST'])
+@login_required
+def update_location():
+    if not current_user.location_consent:
+        return jsonify({'message': 'Location tracking not consented'}), 403
+        
+    data = request.get_json()
+    new_location = Location(
+        latitude=data.get('latitude'),
+        longitude=data.get('longitude'),
+        user_id=current_user.id
+    )
+    from app import db #TODO Alex: is this valid? Should I implement another layer at service?
+    db.session.add(new_location)
+    db.session.commit()
+    return jsonify({'message': 'Location updated'}), 200
 
 
 @main.route('/recommendation', methods=['GET'])
