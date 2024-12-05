@@ -53,7 +53,7 @@ function RecommendationAgent() {
     };
 
     const handleGoBack = () => {
-        navigate('/');
+        navigate('/menu');
     };
 
     return (
