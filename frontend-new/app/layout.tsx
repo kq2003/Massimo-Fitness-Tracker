@@ -1,36 +1,55 @@
-// layout.tsx
 'use client';
 
 import './globals.css';
 import RecommendationAgent from '@/components/RecommendationAgent';
 import Header from '@/components/Header';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
-    // Define paths that shouldn't show the header and recommendation agent
-    const authPaths = ['/auth', '/login', '/signup']; 
-
+    // Define paths where header and recommendation agent shouldn't appear
+    const authPaths = ['/auth', '/login', '/signup'];
     const isAuthPage = authPaths.includes(pathname);
+
+    const noHeaderPaths = ['/auth', '/login', '/signup', '/user-info']
+    const noHeader = noHeaderPaths.includes(pathname)
+
+    // Mocking user data fetch (replace with real API call)
+    const [user, setUser] = useState<{ username: string; avatar: string | null }>({
+        username: '',
+        avatar: null,
+    });
+
+    useEffect(() => {
+        // Simulate fetching user info from backend
+        async function fetchUser() {
+            const response = await fetch('/api/user-info', { credentials: 'include' });
+            const data = await response.json();
+            setUser({ username: data.username, avatar: data.avatar });
+        }
+        fetchUser();
+    }, []);
 
     return (
         <html lang="en">
             <body className="bg-gray-100 min-h-screen flex flex-col">
-                {/* Show header only if it's not an auth page */}
-                {!isAuthPage && <Header/>}
+                {/* Header (conditionally rendered) */}
+                {!noHeader && <Header username={user.username} avatar={user.avatar} />}
 
                 {/* Main Content */}
-                <main className="flex-1 p-6">
-                    {children}
-                </main>
+                <main className="flex-1 p-6">{children}</main>
 
-                {/* Show recommendation agent only if it's not an auth page */}
-                {!isAuthPage && <RecommendationAgent/>}
+                {/* Recommendation Agent (conditionally rendered) */}
+                {!isAuthPage && (
+                    <RecommendationAgent initialMessage="Hi! How can I help you today?" />
+                )}
             </body>
         </html>
     );
 }
+
 
 
 

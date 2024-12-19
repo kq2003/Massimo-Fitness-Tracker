@@ -12,6 +12,12 @@ export const loginUser = (loginData: object) =>
 export const logoutUser = () =>
     axios.get(`${API_URL}/logout`, { withCredentials: true });
 
+// === New User Profile Management ===
+
+// Update user information (e.g., avatar, username)
+export const updateUser = (userData: { avatar?: string; username?: string }) =>
+    axios.post(`${API_URL}/update_user`, userData, { withCredentials: true });
+
 // Workout data
 export const addAerobicWorkout = (workoutData: object) =>
     axios.post(`${API_URL}/add_aerobic`, workoutData, { withCredentials: true });
@@ -61,3 +67,4 @@ export const getRecommendation = (userInput: string) =>
         params: { user_input: userInput },
         withCredentials: true,
     });
+

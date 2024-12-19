@@ -1,8 +1,9 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { registerUser, loginUser } from '@/services/api';
-import { Button } from '../../components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 
@@ -14,11 +15,15 @@ export default function AuthPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (isRegister) await registerUser(formData);
-            else await loginUser(formData);
-            router.push('/menu');
+            if (isRegister) {
+                await registerUser(formData); // Register API call
+                // router.push('/avatar-upload'); // Redirect to avatar upload after registration
+            } else {
+                await loginUser({ email: formData.email, password: formData.password }); // Login API call
+                router.push('/menu'); // Redirect to main menu
+            }
         } catch {
-            alert('Something went wrong');
+            alert('Something went wrong.');
         }
     };
 
@@ -37,8 +42,8 @@ export default function AuthPage() {
                         />
                     )}
                     <Input
-                        type="email"
-                        placeholder="Email"
+                        type="text"
+                        placeholder={isRegister ? 'Email' : 'Username or Email'}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
                     />
@@ -63,3 +68,4 @@ export default function AuthPage() {
         </div>
     );
 }
+

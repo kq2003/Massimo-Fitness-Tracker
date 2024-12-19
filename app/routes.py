@@ -26,22 +26,58 @@ def register():
     
     return jsonify({'message': 'User registered successfully'}), 201
 
+# @main.route('/login', methods=['POST'])
+# # @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+# def login():
+#     data = request.get_json()
+#     user = User.query.filter_by(email=data['email']).first() #TODO Alex: is filtering by email enough?
+    
+#     if user and bcrypt.check_password_hash(user.password, data['password']):
+#         login_user(user)
+#         response = make_response(jsonify({
+#             'message': 'Logged in successfully',
+#             'locationConsent': user.location_consent,
+#             'needsConsent': user.location_consent is None
+#         }), 200)
+#         return response
+#     else:
+#         return jsonify({'message': 'Invalid credentials'}), 401
+
+from sqlalchemy import or_
+
 @main.route('/login', methods=['POST'])
-# @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(email=data['email']).first() #TODO Alex: is filtering by email enough?
-    
+    identifier = data['email']  # Can be either email or username
+    user = User.query.filter(or_(User.email == identifier, User.username == identifier)).first()
+
     if user and bcrypt.check_password_hash(user.password, data['password']):
         login_user(user)
         response = make_response(jsonify({
             'message': 'Logged in successfully',
             'locationConsent': user.location_consent,
-            'needsConsent': user.location_consent is None
+            'needsConsent': user.location_consent is None,
+            'username': user.username,
+            'avatar': user.avatar
         }), 200)
         return response
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+    
+
+@main.route('/update_user', methods=['POST'])
+@login_required
+def update_user():
+    data = request.get_json()
+    if 'avatar' in data:
+        current_user.avatar = data['avatar']
+    if 'username' in data:
+        current_user.username = data['username']
+    from app import db
+    db.session.commit()
+    return jsonify({'message': 'User updated successfully'}), 200
+
+
 
 @main.route('/logout', methods=['GET'])
 # @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
