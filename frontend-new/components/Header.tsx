@@ -1,5 +1,6 @@
 // 'use client';
 
+// import { useEffect, useState } from 'react';
 // import Link from 'next/link';
 // import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 // import {
@@ -9,13 +10,28 @@
 //     NavigationMenuTrigger,
 //     NavigationMenuContent,
 // } from '@/components/ui/navigation-menu';
+// import { fetchUsername } from '@/services/api'; // API call to fetch username
 
-// type HeaderProps = {
-//     username: string;
-//     avatar: string | null;
-// };
+// export default function Header() {
+//     const [username, setUsername] = useState<string | null>(null);
+//     const [loading, setLoading] = useState(true);
 
-// export default function Header({ username, avatar }: HeaderProps) {
+//     useEffect(() => {
+//         const loadUsername = async () => {
+//             try {
+//                 const response = await fetchUsername();
+//                 setUsername(response.data.username);
+//             } catch (error) {
+//                 console.error('Failed to fetch username:', error);
+//                 setUsername(null);
+//             } finally {
+//                 setLoading(false);
+//             }
+//         };
+
+//         loadUsername();
+//     }, []);
+
 //     return (
 //         <header className="flex justify-between items-center p-4 bg-white shadow-md">
 //             {/* Logo */}
@@ -115,15 +131,19 @@
 //             {/* User Info - Avatar + Username */}
 //             <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
 //                 <Avatar className="w-10 h-10">
-//                     <AvatarImage src={avatar || '/avatar-placeholder.png'} alt="User Avatar" />
-//                     <AvatarFallback>U</AvatarFallback>
+//                     <AvatarImage
+//                         src="/avatar-placeholder.png"
+//                         alt="User Avatar"
+//                     />
+//                     <AvatarFallback>{loading ? '...' : username?.charAt(0).toUpperCase()}</AvatarFallback>
 //                 </Avatar>
-//                 <span className="text-gray-800 font-medium">{username}</span>
+//                 <span className="text-gray-800 font-medium">
+//                     {loading ? 'Loading...' : username}
+//                 </span>
 //             </Link>
 //         </header>
 //     );
 // }
-
 
 
 'use client';
@@ -176,80 +196,98 @@ export default function Header() {
                 </span>
             </div>
 
-            {/* Navigation with Dropdowns */}
+            {/* Navigation Menu */}
             <NavigationMenu>
                 <NavigationMenuList>
-                    {/* Data Query Menu */}
+                    {/* Query Data */}
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>Data Query</NavigationMenuTrigger>
-                        <NavigationMenuContent className="mt-2">
-                            <ul className="bg-white p-4 space-y-2 shadow-md border rounded-lg">
+                        <NavigationMenuTrigger>Query Data</NavigationMenuTrigger>
+                        <NavigationMenuContent className="mt-2 w-[500px] min-w-[400px] max-w-[600px] flex-shrink-0">
+                            <ul className="bg-white p-6 space-y-4 shadow-md border rounded-lg">
                                 <li>
                                     <Link
-                                        href="/query-data/view"
-                                        className="text-blue-600 hover:text-black"
+                                        href="/query-data/strength"
+                                        className="text-black-600 hover:text-black"
                                     >
-                                        View Data
+                                        <strong>Strength Data</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Visualize your strength workout trends and progress.
+                                        </p>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link
-                                        href="/query-data/export"
-                                        className="text-blue-600 hover:text-black"
+                                        href="/query-data/aerobic"
+                                        className="text-black-600 hover:text-black"
                                     >
-                                        Export Data
+                                        <strong>Aerobic Data</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            View your progress in aerobic exercises such as cycling.
+                                        </p>
                                     </Link>
                                 </li>
                             </ul>
                         </NavigationMenuContent>
                     </NavigationMenuItem>
 
-                    {/* Add Workout Menu */}
+                    {/* Add Workout */}
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Add Workout</NavigationMenuTrigger>
-                        <NavigationMenuContent className="mt-2">
-                            <ul className="bg-white p-4 space-y-2 shadow-md border rounded-lg">
+                        <NavigationMenuContent className="mt-2 w-[500px] min-w-[400px] max-w-[600px] flex-shrink-0">
+                            <ul className="bg-white p-6 space-y-4 shadow-md border rounded-lg">
                                 <li>
                                     <Link
                                         href="/add-workout/aerobic"
-                                        className="text-blue-600 hover:text-black"
+                                        className="text-black-600 hover:text-black"
                                     >
-                                        Aerobic Workout
+                                        <strong>Aerobic Workout</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Log your running, cycling, and other aerobic sessions.
+                                        </p>
                                     </Link>
                                 </li>
                                 <li>
                                     <Link
                                         href="/add-workout/strength"
-                                        className="text-blue-600 hover:text-black"
+                                        className="text-black-600 hover:text-black"
                                     >
-                                        Strength Workout
+                                        <strong>Strength Workout</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Track your weightlifting and resistance exercises.
+                                        </p>
                                     </Link>
                                 </li>
                             </ul>
                         </NavigationMenuContent>
                     </NavigationMenuItem>
 
-                    {/* Form Tracker Menu */}
+                    {/* Form Tracker */}
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Form Tracker</NavigationMenuTrigger>
-                        <NavigationMenuContent className="mt-2">
-                            <ul className="bg-white p-4 space-y-2 shadow-md border rounded-lg">
+                        <NavigationMenuContent className="mt-2 w-[500px] min-w-[400px] max-w-[600px] flex-shrink-0">
+                            <ul className="bg-white p-6 space-y-4 shadow-md border rounded-lg">
                                 <li>
                                     <Link
                                         href="/form-tracker/progress"
-                                        className="text-blue-600 hover:text-black"
+                                        className="text-black-600 hover:text-black"
                                     >
-                                        Track Progress
+                                        <strong>Online Form Analysis</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Upload a video of you doing any exercise, and analyze the form comparing to pro.
+                                        </p>
                                     </Link>
                                 </li>
-                                <li>
+                                {/* <li>
                                     <Link
                                         href="/form-tracker/recommendations"
-                                        className="text-blue-600 hover:text-black"
+                                        className="text-black-600 hover:text-black"
                                     >
-                                        Recommendations
+                                        <strong>Recommendations</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Get AI-driven suggestions to optimize your form.
+                                        </p>
                                     </Link>
-                                </li>
+                                </li> */}
                             </ul>
                         </NavigationMenuContent>
                     </NavigationMenuItem>
@@ -272,3 +310,6 @@ export default function Header() {
         </header>
     );
 }
+
+
+

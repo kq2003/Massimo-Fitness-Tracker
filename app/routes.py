@@ -164,6 +164,30 @@ def delete_strength(strength_id):
 
 
 
+# @main.route('/workout_progress/<exercise_type>', methods=['GET'])
+# @login_required
+# def workout_progress(exercise_type):
+#     sessions = get_strength_training_by_exercise(current_user.id, exercise_type)
+
+#     data = {}
+#     for session in sessions:
+#         date_str = session.date.strftime("%Y-%m-%d")
+#         if date_str not in data:
+#             data[date_str] = []
+#         data[date_str].append({
+#             'reps': session.reps,
+#             'weight': session.weight,
+#             'rest_time': session.rest_time,
+#             'effort_level': session.effort_level,
+#         })
+
+#     response = {
+#         "dates": list(data.keys()),
+#         "first_set_weights": [sets[0]['weight'] for sets in data.values()],
+#         "first_set_reps": [sets[0]['reps'] for sets in data.values()],
+#         "details": data  # All sets per day
+#     }
+#     return jsonify(response), 200
 @main.route('/workout_progress/<exercise_type>', methods=['GET'])
 @login_required
 def workout_progress(exercise_type):
@@ -174,22 +198,29 @@ def workout_progress(exercise_type):
         date_str = session.date.strftime("%Y-%m-%d")
         if date_str not in data:
             data[date_str] = []
+        # Append session details with calculated 1RM
         data[date_str].append({
             'reps': session.reps,
             'weight': session.weight,
             'rest_time': session.rest_time,
             'effort_level': session.effort_level,
-            'volume': session.weight * session.reps  # Calculate volume
+            '1rm': session.weight * (1 + session.reps / 30),  # Calculate 1RM
         })
 
     response = {
         "dates": list(data.keys()),
         "first_set_weights": [sets[0]['weight'] for sets in data.values()],
-        "first_set_reps": [sets[0]['reps'] for sets in data.values()],
-        "total_volumes": [sum(set['volume'] for set in sets) for sets in data.values()],
+        "relative_intensities": [sets[0]['effort_level'] for sets in data.values()],
+        "one_rep_maxes": [max(set['1rm'] for set in sets) for sets in data.values()],  # Max 1RM per day
         "details": data  # All sets per day
     }
     return jsonify(response), 200
+
+
+def calculate_1rm(weight, reps):
+    """Calculate 1RM using Epley formula."""
+    return weight * (1 + reps / 30)
+
 
 @main.route('/strength_exercise_types', methods=['GET'])
 @login_required
