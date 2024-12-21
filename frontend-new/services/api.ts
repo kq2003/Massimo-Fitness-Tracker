@@ -9,8 +9,11 @@ export const registerUser = (registerData: object) =>
 export const loginUser = (loginData: object) =>
     axios.post(`${API_URL}/login`, loginData, { withCredentials: true });
 
+// export const logoutUser = () =>
+//     axios.post(`${API_URL}/logout`, { withCredentials: true });
 export const logoutUser = () =>
-    axios.get(`${API_URL}/logout`, { withCredentials: true });
+    axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
+
 
 // === New User Profile Management ===
 
@@ -68,3 +71,6 @@ export const getRecommendation = (userInput: string) =>
         withCredentials: true,
     });
 
+    export const fetchUsername = () =>
+        axios.get(`${API_URL}/get_username`, { withCredentials: true });
+    

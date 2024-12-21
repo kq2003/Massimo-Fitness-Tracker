@@ -1,6 +1,6 @@
 from config import Config
 from app import db
-from app.models import AerobicTraining, StrengthTraining
+from app.models import AerobicTraining, StrengthTraining, User
 from collections import defaultdict
 # from llama_index.core import PromptTemplate
 from llama_index.llms.openai import OpenAI
@@ -11,6 +11,7 @@ import time
 # from llama_index import GPTVectorStoreIndex, Document
 # from app.models import AerobicTraining, StrengthTraining
 # from datetime import datetime
+
 
 def query_workout_data(index, workout_type=None, start_date=None, end_date=None):
     # Build the base query

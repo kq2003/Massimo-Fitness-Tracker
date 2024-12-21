@@ -39,6 +39,7 @@ import RecommendationAgent from '@/components/RecommendationAgent';
 import { useRouter } from 'next/navigation';
 import { logoutUser } from '@/services/api';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 
 export default function MenuPage() {
     const router = useRouter();
@@ -46,10 +47,19 @@ export default function MenuPage() {
     // Handle Logout
     const handleLogout = async () => {
         try {
-            await logoutUser(); // Call logout API
+            console.log('Attempting to log out...');
+            const response = await logoutUser(); // Call logout API
+            console.log('Logout Response:', response.data); // Log successful response
+            alert('Logged out successfully!');
             router.push('/auth'); // Redirect to login page
         } catch (error) {
-            alert('Failed to log out. Please try again.');
+            console.error('Logout Error:', error); // Log detailed error
+            if (axios.isAxiosError(error)) {
+                console.error('Axios Error Response:', error.response?.data); // Log backend error response
+                alert(error.response?.data?.message || 'Failed to log out. Please try again.');
+            } else {
+                alert('An unknown error occurred during logout.');
+            }
         }
     };
 

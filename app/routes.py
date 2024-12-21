@@ -78,9 +78,8 @@ def update_user():
     return jsonify({'message': 'User updated successfully'}), 200
 
 
-
-@main.route('/logout', methods=['GET'])
-# @cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+@main.route('/logout', methods=['POST'])
+@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
 @login_required
 def logout():
     logout_user()
@@ -93,6 +92,16 @@ def add_aerobic():
     data = request.get_json()
     aerobic_session = add_aerobic_training(data, current_user.id)
     return jsonify({'message': 'Aerobic training added', 'id': aerobic_session.id}), 201
+
+
+@main.route('/get_username', methods=['GET'])
+@login_required
+def get_username():
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'User not authenticated'}), 401
+
+    return jsonify({'username': current_user.username}), 200
+
 
 @main.route('/get_aerobic', methods=['GET'])
 @login_required

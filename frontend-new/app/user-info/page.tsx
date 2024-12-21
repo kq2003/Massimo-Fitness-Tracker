@@ -22,7 +22,7 @@ export default function UserInfoPage() {
 
     const handleLogout = async () => {
         try {
-            await fetch('/logout', { method: 'GET', credentials: 'include' });
+            await fetch('/logout', { method: 'POST', credentials: 'include' });
             router.push('/auth');
         } catch {
             alert('Failed to log out.');

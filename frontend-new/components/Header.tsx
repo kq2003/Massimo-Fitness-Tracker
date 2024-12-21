@@ -10,7 +10,12 @@
 //     NavigationMenuContent,
 // } from '@/components/ui/navigation-menu';
 
-// export default function Header() {
+// type HeaderProps = {
+//     username: string;
+//     avatar: string | null;
+// };
+
+// export default function Header({ username, avatar }: HeaderProps) {
 //     return (
 //         <header className="flex justify-between items-center p-4 bg-white shadow-md">
 //             {/* Logo */}
@@ -107,24 +112,23 @@
 //                 </NavigationMenuList>
 //             </NavigationMenu>
 
-//             {/* User Info */}
-//             <div className="flex items-center space-x-4">
+//             {/* User Info - Avatar + Username */}
+//             <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
 //                 <Avatar className="w-10 h-10">
-//                     <AvatarImage src="/avatar-placeholder.png" alt="User Avatar" />
+//                     <AvatarImage src={avatar || '/avatar-placeholder.png'} alt="User Avatar" />
 //                     <AvatarFallback>U</AvatarFallback>
 //                 </Avatar>
-//                 <span className="text-gray-800">Username</span>
-//             </div>
+//                 <span className="text-gray-800 font-medium">{username}</span>
+//             </Link>
 //         </header>
 //     );
 // }
 
 
 
-
-
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -134,13 +138,28 @@ import {
     NavigationMenuTrigger,
     NavigationMenuContent,
 } from '@/components/ui/navigation-menu';
+import { fetchUsername } from '@/services/api'; // API call to fetch username
 
-type HeaderProps = {
-    username: string;
-    avatar: string | null;
-};
+export default function Header() {
+    const [username, setUsername] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
-export default function Header({ username, avatar }: HeaderProps) {
+    useEffect(() => {
+        const loadUsername = async () => {
+            try {
+                const response = await fetchUsername();
+                setUsername(response.data.username);
+            } catch (error) {
+                console.error('Failed to fetch username:', error);
+                setUsername(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadUsername();
+    }, []);
+
     return (
         <header className="flex justify-between items-center p-4 bg-white shadow-md">
             {/* Logo */}
@@ -240,12 +259,16 @@ export default function Header({ username, avatar }: HeaderProps) {
             {/* User Info - Avatar + Username */}
             <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
                 <Avatar className="w-10 h-10">
-                    <AvatarImage src={avatar || '/avatar-placeholder.png'} alt="User Avatar" />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarImage
+                        src="/avatar-placeholder.png"
+                        alt="User Avatar"
+                    />
+                    <AvatarFallback>{loading ? '...' : username?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <span className="text-gray-800 font-medium">{username}</span>
+                <span className="text-gray-800 font-medium">
+                    {loading ? 'Loading...' : username}
+                </span>
             </Link>
         </header>
     );
 }
-
