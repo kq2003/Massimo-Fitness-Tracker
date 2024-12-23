@@ -18,14 +18,17 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { addStrengthWorkout } from "@/services/api";
 
-// Define the Exercise type
+// Updated Exercise type to include multiple sets
 type Exercise = {
   name: string;
-  reps: number;
-  weight: number;
-  restTime: number;
-  effortLevel: number;
+  sets: {
+    reps: number;
+    weight: number;
+    restTime: number;
+    effortLevel: number;
+  }[];
 };
 
 // Mock data for exercises
@@ -56,32 +59,68 @@ export default function AddStrengthWorkout() {
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [hoveredExercise, setHoveredExercise] = useState<string | null>(null);
 
+  // Add or update an exercise with a new set
   const addExercise = (exerciseName: string) => {
-    if (!selectedExercises.find((e) => e.name === exerciseName)) {
+    const existingExerciseIndex = selectedExercises.findIndex((e) => e.name === exerciseName);
+
+    if (existingExerciseIndex !== -1) {
+      // Append a new set to the existing exercise
+      const updatedExercises = [...selectedExercises];
+      updatedExercises[existingExerciseIndex].sets.push({
+        reps: 0,
+        weight: 0,
+        restTime: 0,
+        effortLevel: 5,
+      });
+      setSelectedExercises(updatedExercises);
+    } else {
+      // Add the exercise as a new entry with the first set
       setSelectedExercises((prev) => [
         ...prev,
-        { name: exerciseName, reps: 0, weight: 0, restTime: 0, effortLevel: 5 },
+        { name: exerciseName, sets: [{ reps: 0, weight: 0, restTime: 0, effortLevel: 5 }] },
       ]);
     }
   };
 
-  const updateExercise = (index: number, field: keyof Exercise, value: number) => {
+  // Update a specific set of an exercise
+  const updateExercise = (exerciseIndex: number, setIndex: number, field: keyof Exercise["sets"][0], value: number) => {
     const updatedExercises = [...selectedExercises];
-    updatedExercises[index] = {
-      ...updatedExercises[index],
+    updatedExercises[exerciseIndex].sets[setIndex] = {
+      ...updatedExercises[exerciseIndex].sets[setIndex],
       [field]: value,
     };
     setSelectedExercises(updatedExercises);
   };
 
-  const deleteExercise = (index: number) => {
-    setSelectedExercises((prev) => prev.filter((_, i) => i !== index));
+  // Delete a specific set of an exercise
+  const deleteExerciseSet = (exerciseIndex: number, setIndex: number) => {
+    const updatedExercises = [...selectedExercises];
+    updatedExercises[exerciseIndex].sets.splice(setIndex, 1);
+    if (updatedExercises[exerciseIndex].sets.length === 0) {
+      updatedExercises.splice(exerciseIndex, 1); // Remove the exercise if no sets remain
+    }
+    setSelectedExercises(updatedExercises);
   };
 
-  const handleFinishWorkout = () => {
-    console.log("Workout Details:", selectedExercises);
-    alert("Workout saved successfully!");
-    setSelectedExercises([]);
+  const handleFinishWorkout = async () => {
+    try {
+      for (const exercise of selectedExercises) {
+        for (const set of exercise.sets) {
+          await addStrengthWorkout({
+            type: exercise.name,
+            reps: set.reps,
+            weight: set.weight,
+            rest_time: set.restTime,
+            effort_level: set.effortLevel,
+          });
+        }
+      }
+      alert("Workout saved successfully!");
+      setSelectedExercises([]);
+    } catch (error) {
+      console.error("Failed to save workout:", error);
+      alert("Error saving workout. Please try again.");
+    }
   };
 
   return (
@@ -119,7 +158,7 @@ export default function AddStrengthWorkout() {
                         }}
                         className="w-full text-left text-red-500 hover:bg-red-100 p-2 rounded"
                       >
-                        <span>Back to Menu</span>
+                        <span>Menu</span>
                       </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -154,58 +193,77 @@ export default function AddStrengthWorkout() {
           )}
 
           {/* Selected Exercises */}
-          <div className="flex flex-wrap gap-4">
-            {selectedExercises.map((exercise, index) => (
-              <Card key={exercise.name} className="w-full md:w-1/2 lg:w-1/3 p-4 space-y-4">
+          <div className="flex flex-col gap-6">
+            {selectedExercises.map((exercise, exerciseIndex) => (
+              <Card key={exercise.name} className="w-full p-4 shadow-lg rounded-lg">
                 <CardHeader>
                   <CardTitle>{exercise.name}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <label>
-                    Reps:
-                    <Input
-                      type="number"
-                      placeholder="Enter number of reps"
-                      value={exercise.reps}
-                      onChange={(e) => updateExercise(index, "reps", Number(e.target.value))}
-                    />
-                  </label>
-                  <label>
-                    Weight (kg):
-                    <Input
-                      type="number"
-                      placeholder="Enter weight in kg"
-                      value={exercise.weight}
-                      onChange={(e) => updateExercise(index, "weight", Number(e.target.value))}
-                    />
-                  </label>
-                  <label>
-                    Rest Time (sec):
-                    <Input
-                      type="number"
-                      placeholder="Enter rest time in seconds"
-                      value={exercise.restTime}
-                      onChange={(e) => updateExercise(index, "restTime", Number(e.target.value))}
-                    />
-                  </label>
-                  <label>
-                    Effort Level (RPE):
-                    <Slider
-                      defaultValue={[exercise.effortLevel]}
-                      max={10}
-                      step={1}
-                      value={[exercise.effortLevel]}
-                      onValueChange={(value) => updateExercise(index, "effortLevel", value[0])}
-                    />
-                  </label>
-                </CardContent>
-                <Button
-                  variant="destructive"
-                  onClick={() => deleteExercise(index)}
-                  className="w-full"
-                >
-                  Delete Exercise
-                </Button>
+
+                <CardContent className="space-y-4">
+                    {exercise.sets.map((set, setIndex) => (
+                        <div
+                        key={setIndex}
+                        className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] items-center gap-4 border border-muted p-4 rounded-md"
+                        >
+                        <div>
+                            <label className="text-sm font-semibold text-muted-foreground">Reps</label>
+                            <Input
+                            type="number"
+                            value={set.reps === 0 ? "" : set.reps}
+                            placeholder="Reps"
+                            onChange={(e) => {
+                                const value = e.target.value === "" ? 0 : Number(e.target.value);
+                                updateExercise(exerciseIndex, setIndex, "reps", value);
+                            }}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-sm font-semibold text-muted-foreground">Weight (kg)</label>
+                            <Input
+                            type="number"
+                            value={set.weight === 0 ? "" : set.weight}
+                            placeholder="Weight"
+                            onChange={(e) => {
+                                const value = e.target.value === "" ? 0 : Number(e.target.value);
+                                updateExercise(exerciseIndex, setIndex, "weight", value);
+                            }}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-sm font-semibold text-muted-foreground">Rest (sec)</label>
+                            <Input
+                            type="number"
+                            value={set.restTime === 0 ? "" : set.restTime}
+                            placeholder="Rest Time"
+                            onChange={(e) => {
+                                const value = e.target.value === "" ? 0 : Number(e.target.value);
+                                updateExercise(exerciseIndex, setIndex, "restTime", value);
+                            }}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-sm font-semibold text-muted-foreground">RPE</label>
+                            <Slider
+                            defaultValue={[set.effortLevel]}
+                            max={10}
+                            step={1}
+                            value={[set.effortLevel]}
+                            onValueChange={(value) =>
+                                updateExercise(exerciseIndex, setIndex, "effortLevel", value[0])
+                            }
+                            />
+                        </div>
+                        <Button
+                            variant="destructive"
+                            onClick={() => deleteExerciseSet(exerciseIndex, setIndex)}
+                            className="h-10"
+                        >
+                            Delete
+                        </Button>
+                        </div>
+                    ))}
+                    </CardContent>
               </Card>
             ))}
           </div>
@@ -221,5 +279,6 @@ export default function AddStrengthWorkout() {
     </SidebarProvider>
   );
 }
+
 
 
