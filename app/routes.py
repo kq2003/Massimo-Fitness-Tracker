@@ -205,6 +205,8 @@ def workout_progress(exercise_type):
             'rest_time': session.rest_time,
             'effort_level': session.effort_level,
             '1rm': session.weight * (1 + session.reps / 30),  # Calculate 1RM
+            'volume': session.weight * session.reps
+
         })
 
     response = {
@@ -212,8 +214,14 @@ def workout_progress(exercise_type):
         "first_set_weights": [sets[0]['weight'] for sets in data.values()],
         "relative_intensities": [sets[0]['effort_level'] for sets in data.values()],
         "one_rep_maxes": [max(set['1rm'] for set in sets) for sets in data.values()],  # Max 1RM per day
-        "details": data  # All sets per day
+        "details": data,  # All sets per day
+        "total_volumes": [sum(set['volume'] for set in sets) for sets in data.values()]
+
+
     }
+
+    print("Workout Progress Response:", response)
+
     return jsonify(response), 200
 
 

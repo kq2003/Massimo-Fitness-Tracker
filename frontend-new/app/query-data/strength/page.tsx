@@ -68,13 +68,13 @@ export default function StrengthProgress() {
       const fetchData = async () => {
         try {
           const response = await getStrengthProgress(selectedExercise);
-          const { dates, first_set_weights, relative_intensities, one_rep_maxes } = response.data;
+          const { dates, first_set_weights, relative_intensities, one_rep_maxes, total_volumes} = response.data;
 
           // Format chart data dynamically based on available metrics
           const formattedData = dates.map((date: string, index: number) => ({
             date,
             weight: first_set_weights[index],
-            intensity: relative_intensities[index],
+            volume: total_volumes[index],
             oneRepMax: one_rep_maxes[index], // Add 1RM to the chart data
           }));
 
@@ -127,7 +127,7 @@ export default function StrengthProgress() {
               <SelectContent>
                 <SelectItem value="weight">Top Set Weight</SelectItem>
                 <SelectItem value="volume">Total Volume</SelectItem>
-                <SelectItem value="intensity">Relative Intensity</SelectItem>
+                {/* <SelectItem value="intensity">Relative Intensity</SelectItem> */}
                 <SelectItem value="oneRepMax">One Rep Max</SelectItem> {/* Add 1RM */}
               </SelectContent>
             </Select>

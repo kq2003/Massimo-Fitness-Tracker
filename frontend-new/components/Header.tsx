@@ -1,151 +1,3 @@
-// 'use client';
-
-// import { useEffect, useState } from 'react';
-// import Link from 'next/link';
-// import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-// import {
-//     NavigationMenu,
-//     NavigationMenuList,
-//     NavigationMenuItem,
-//     NavigationMenuTrigger,
-//     NavigationMenuContent,
-// } from '@/components/ui/navigation-menu';
-// import { fetchUsername } from '@/services/api'; // API call to fetch username
-
-// export default function Header() {
-//     const [username, setUsername] = useState<string | null>(null);
-//     const [loading, setLoading] = useState(true);
-
-//     useEffect(() => {
-//         const loadUsername = async () => {
-//             try {
-//                 const response = await fetchUsername();
-//                 setUsername(response.data.username);
-//             } catch (error) {
-//                 console.error('Failed to fetch username:', error);
-//                 setUsername(null);
-//             } finally {
-//                 setLoading(false);
-//             }
-//         };
-
-//         loadUsername();
-//     }, []);
-
-//     return (
-//         <header className="flex justify-between items-center p-4 bg-white shadow-md">
-//             {/* Logo */}
-//             <div className="flex items-center space-x-4">
-//                 <Link href="/menu">
-//                     <img
-//                         src="/massimo-logo.png"
-//                         alt="Massimo Fitness Tracker"
-//                         className="h-12 w-12 cursor-pointer"
-//                     />
-//                 </Link>
-//                 <span className="text-lg font-semibold text-gray-800">
-//                     Massimo Fitness Tracker
-//                 </span>
-//             </div>
-
-//             {/* Navigation with Dropdowns */}
-//             <NavigationMenu>
-//                 <NavigationMenuList>
-//                     {/* Data Query Menu */}
-//                     <NavigationMenuItem>
-//                         <NavigationMenuTrigger>Data Query</NavigationMenuTrigger>
-//                         <NavigationMenuContent className="mt-2">
-//                             <ul className="bg-white p-4 space-y-2 shadow-md border rounded-lg">
-//                                 <li>
-//                                     <Link
-//                                         href="/query-data/view"
-//                                         className="text-blue-600 hover:text-black"
-//                                     >
-//                                         View Data
-//                                     </Link>
-//                                 </li>
-//                                 <li>
-//                                     <Link
-//                                         href="/query-data/export"
-//                                         className="text-blue-600 hover:text-black"
-//                                     >
-//                                         Export Data
-//                                     </Link>
-//                                 </li>
-//                             </ul>
-//                         </NavigationMenuContent>
-//                     </NavigationMenuItem>
-
-//                     {/* Add Workout Menu */}
-//                     <NavigationMenuItem>
-//                         <NavigationMenuTrigger>Add Workout</NavigationMenuTrigger>
-//                         <NavigationMenuContent className="mt-2">
-//                             <ul className="bg-white p-4 space-y-2 shadow-md border rounded-lg">
-//                                 <li>
-//                                     <Link
-//                                         href="/add-workout/aerobic"
-//                                         className="text-blue-600 hover:text-black"
-//                                     >
-//                                         Aerobic Workout
-//                                     </Link>
-//                                 </li>
-//                                 <li>
-//                                     <Link
-//                                         href="/add-workout/strength"
-//                                         className="text-blue-600 hover:text-black"
-//                                     >
-//                                         Strength Workout
-//                                     </Link>
-//                                 </li>
-//                             </ul>
-//                         </NavigationMenuContent>
-//                     </NavigationMenuItem>
-
-//                     {/* Form Tracker Menu */}
-//                     <NavigationMenuItem>
-//                         <NavigationMenuTrigger>Form Tracker</NavigationMenuTrigger>
-//                         <NavigationMenuContent className="mt-2">
-//                             <ul className="bg-white p-4 space-y-2 shadow-md border rounded-lg">
-//                                 <li>
-//                                     <Link
-//                                         href="/form-tracker/progress"
-//                                         className="text-blue-600 hover:text-black"
-//                                     >
-//                                         Track Progress
-//                                     </Link>
-//                                 </li>
-//                                 <li>
-//                                     <Link
-//                                         href="/form-tracker/recommendations"
-//                                         className="text-blue-600 hover:text-black"
-//                                     >
-//                                         Recommendations
-//                                     </Link>
-//                                 </li>
-//                             </ul>
-//                         </NavigationMenuContent>
-//                     </NavigationMenuItem>
-//                 </NavigationMenuList>
-//             </NavigationMenu>
-
-//             {/* User Info - Avatar + Username */}
-//             <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
-//                 <Avatar className="w-10 h-10">
-//                     <AvatarImage
-//                         src="/avatar-placeholder.png"
-//                         alt="User Avatar"
-//                     />
-//                     <AvatarFallback>{loading ? '...' : username?.charAt(0).toUpperCase()}</AvatarFallback>
-//                 </Avatar>
-//                 <span className="text-gray-800 font-medium">
-//                     {loading ? 'Loading...' : username}
-//                 </span>
-//             </Link>
-//         </header>
-//     );
-// }
-
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -223,6 +75,17 @@ export default function Header() {
                                         <strong>Aerobic Data</strong>
                                         <p className="text-gray-500 text-sm">
                                             View your progress in aerobic exercises such as cycling.
+                                        </p>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link
+                                        href="/query-data/list-all"
+                                        className="text-black-600 hover:text-black"
+                                    >
+                                        <strong>List All Workouts</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            View your past workout details for specific dates.
                                         </p>
                                     </Link>
                                 </li>
