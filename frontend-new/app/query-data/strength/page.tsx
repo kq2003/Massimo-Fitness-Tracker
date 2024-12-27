@@ -68,7 +68,7 @@ export default function StrengthProgress() {
       const fetchData = async () => {
         try {
           const response = await getStrengthProgress(selectedExercise);
-          const { dates, first_set_weights, relative_intensities, one_rep_maxes, total_volumes} = response.data;
+          const { dates, first_set_weights, one_rep_maxes, total_volumes} = response.data;
 
           // Format chart data dynamically based on available metrics
           const formattedData = dates.map((date: string, index: number) => ({
@@ -176,7 +176,7 @@ export default function StrengthProgress() {
                 />
                 <Line
                   dataKey={selectedMetric}
-                  type="natural"
+                  type="linear"
                   stroke={chartConfig[selectedMetric].color}
                   strokeWidth={2}
                   dot={{

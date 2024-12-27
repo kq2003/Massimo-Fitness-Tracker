@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { logoutUser } from '@/services/api';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
     NavigationMenu,
@@ -11,10 +14,31 @@ import {
     NavigationMenuContent,
 } from '@/components/ui/navigation-menu';
 import { fetchUsername } from '@/services/api'; // API call to fetch username
+import axios from 'axios';
 
 export default function Header() {
+    const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+        // Handle Logout
+        const handleLogout = async () => {
+            try {
+                console.log('Attempting to log out...');
+                const response = await logoutUser(); // Call logout API
+                console.log('Logout Response:', response.data); // Log successful response
+                alert('Logged out successfully!');
+                router.push('/auth'); // Redirect to login page
+            } catch (error) {
+                console.error('Logout Error:', error); // Log detailed error
+                if (axios.isAxiosError(error)) {
+                    console.error('Axios Error Response:', error.response?.data); // Log backend error response
+                    alert(error.response?.data?.message || 'Failed to log out. Please try again.');
+                } else {
+                    alert('An unknown error occurred during logout.');
+                }
+            }
+        };
 
     useEffect(() => {
         const loadUsername = async () => {
@@ -158,21 +182,23 @@ export default function Header() {
             </NavigationMenu>
 
             {/* User Info - Avatar + Username */}
-            <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
-                <Avatar className="w-10 h-10">
-                    <AvatarImage
-                        src="/avatar-placeholder.png"
-                        alt="User Avatar"
-                    />
-                    <AvatarFallback>{loading ? '...' : username?.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <span className="text-gray-800 font-medium">
-                    {loading ? 'Loading...' : username}
-                </span>
-            </Link>
+            <div className="flex items-center space-x-4">
+                <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
+                    <Avatar className="w-10 h-10">
+                        <AvatarImage
+                            src="/avatar-placeholder.png"
+                            alt="User Avatar"
+                        />
+                        <AvatarFallback>{loading ? '...' : username?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-gray-800 font-medium">
+                        {loading ? 'Loading...' : username}
+                    </span>
+                </Link>
+                <Button variant="default" onClick={handleLogout} className="ml-4 px-4 py-2 rounded-md">
+                    Logout
+                </Button>
+            </div>
         </header>
     );
 }
-
-
-

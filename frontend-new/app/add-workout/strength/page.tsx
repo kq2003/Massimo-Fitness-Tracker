@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -55,9 +55,32 @@ const exercises = [
   },
 ];
 
+
 export default function AddStrengthWorkout() {
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [hoveredExercise, setHoveredExercise] = useState<string | null>(null);
+  const [timer, isTimer] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+
+  useEffect(() => {
+    setTimerRunning(true);
+    const interval = setInterval(() => {
+      isTimer((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const validateInputs = () => {
+    for (const exercise of selectedExercises) {
+        for (const set of exercise.sets) {
+            if (!set.reps || !set.weight || !set.restTime || !set.effortLevel) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
   // Add or update an exercise with a new set
   const addExercise = (exerciseName: string) => {
@@ -103,6 +126,11 @@ export default function AddStrengthWorkout() {
   };
 
   const handleFinishWorkout = async () => {
+
+    if (!validateInputs()) {
+      alert("Please fill in all fields for each set.");
+      return
+    }
     try {
       for (const exercise of selectedExercises) {
         for (const set of exercise.sets) {
@@ -173,6 +201,15 @@ export default function AddStrengthWorkout() {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col p-4 space-y-4">
+
+        <div className="timer mb-4">
+            <h2>Workout Timer: {Math.floor(timer / 60)}:{timer % 60 < 10 ? `0${timer % 60}` : timer % 60}</h2>
+            {!timerRunning && (
+              <Button onClick={() => setTimerRunning(true)} className="mt-2">
+                Start Timer
+              </Button>
+            )}
+          </div>
           {/* Hovered Exercise Details */}
           {hoveredExercise && (
             <Card className="max-w-md">

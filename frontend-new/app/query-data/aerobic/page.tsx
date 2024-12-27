@@ -170,7 +170,7 @@ export default function AerobicProgress() {
                 />
                 <Line
                   dataKey="value"
-                  type="natural"
+                  type="linear"
                   stroke={chartConfig[selectedMetric].color}
                   strokeWidth={2}
                   dot={{
