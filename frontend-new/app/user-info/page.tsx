@@ -92,7 +92,7 @@ export default function UserInfoPage() {
                 {/* Main Content */}
                 <main className="flex-1 p-8">
                     <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
-                    <p>Welcome to the user info page.</p>
+                    <p>Welcome to the user info page. Functionalities coming soon in a week.</p>
                 </main>
             </div>
         </SidebarProvider>

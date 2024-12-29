@@ -64,7 +64,7 @@
 'use client';
 
 import './globals.css';
-import RecommendationAgent from '@/components/RecommendationAgent';
+// import RecommendationAgent from '@/components/RecommendationAgent';
 import Header from '@/components/Header';
 import { usePathname } from 'next/navigation';
 
@@ -72,11 +72,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const pathname = usePathname();
 
     // Define paths where header and recommendation agent shouldn't appear
-    const noHeaderPaths = ['/auth', '/login', '/signup', '/user-info', '/add-workout/strength'];
-    const noRecommendationPaths = ['/auth', '/login', '/signup'];
+    const noHeaderPaths = ['/auth', '/login', '/signup', '/user-info', '/add-workout/strength', '/add-workout/aerobic' ];
+    // const noRecommendationPaths = ['/auth', '/login', '/signup'];
 
     const showHeader = !noHeaderPaths.includes(pathname);
-    const showRecommendationAgent = !noRecommendationPaths.includes(pathname);
+    // const showRecommendationAgent = !noRecommendationPaths.includes(pathname);
 
     return (
         <html lang="en">
@@ -87,10 +87,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {/* Main Content */}
                 <main className="flex-1 p-6">{children}</main>
 
-                {/* Conditionally render Recommendation Agent */}
+                {/* Conditionally render Recommendation Agent
                 {showRecommendationAgent && (
                     <RecommendationAgent initialMessage="Hi! How can I help you today?" />
-                )}
+                )} */}
             </body>
         </html>
     );

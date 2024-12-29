@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { addStrengthWorkout } from "@/services/api";
+import { addStrengthWorkout, fetchCurrentDay, fetchWorkoutPlan_add } from "@/services/api";
 
 // Updated Exercise type to include multiple sets
 type Exercise = {
@@ -35,22 +35,22 @@ type Exercise = {
 const exercises = [
   {
     name: "Bench Press",
-    gif: "/gifs/bench-press.gif",
+    gif: "/bench-press.gif",
     description: "A compound exercise for chest, shoulders, and triceps.",
   },
   {
     name: "Squat",
-    gif: "/gifs/squat.gif",
+    gif: "/squat.gif",
     description: "Focuses on lower body strength, mainly quads and glutes.",
   },
   {
     name: "Deadlift",
-    gif: "/gifs/deadlift.gif",
+    gif: "/deadlift.gif",
     description: "Works the posterior chain, including back and hamstrings.",
   },
   {
     name: "Overhead Press",
-    gif: "/gifs/overhead-press.gif",
+    gif: "/overhead-press.gif",
     description: "Targets shoulders and upper chest, emphasizing stability.",
   },
 ];
@@ -61,6 +61,52 @@ export default function AddStrengthWorkout() {
   const [hoveredExercise, setHoveredExercise] = useState<string | null>(null);
   const [timer, isTimer] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
+  
+
+  const [currentDay, setCurrentDay] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+
+  
+
+useEffect(() => {
+    const loadData = async () => {
+        try {
+            setLoading(true);
+            const dayRes = await fetchCurrentDay();
+            const day = dayRes.data.current_day;
+            console.log(day);
+            if (!day) {
+                setError(dayRes.data.message);
+                setLoading(false);
+                return;
+            }
+            setCurrentDay(day.toLowerCase());
+
+            const planRes = await fetchWorkoutPlan_add(currentDay);
+            console.log(planRes)
+            
+            setSelectedExercises(planRes['workouts'].map((w: any) => ({
+                name: w.exercise_name,
+                sets: w.sets.map((set: any) => ({
+                    reps: set.reps,
+                    weight: set.weight,
+                    restTime: set.restTime,
+                    effortLevel: set.effortLevel,
+                })),
+            })));
+            
+        } catch (err) {
+            console.log("The error is" + err);
+            setError("Failed to load workout plan.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    loadData();
+}, []);
+
 
   useEffect(() => {
     setTimerRunning(true);
@@ -81,6 +127,10 @@ export default function AddStrengthWorkout() {
     }
     return true;
 };
+
+    const handleStartTimer = () => {
+        setTimerRunning(true);  // Start the timer when the button is clicked
+    };
 
   // Add or update an exercise with a new set
   const addExercise = (exerciseName: string) => {
@@ -200,16 +250,19 @@ export default function AddStrengthWorkout() {
         </Sidebar>
 
         {/* Main Content */}
+        {loading && <div className="text-center">Loading workout plan...</div>}
+
         <div className="flex-1 flex flex-col p-4 space-y-4">
 
         <div className="timer mb-4">
-            <h2>Workout Timer: {Math.floor(timer / 60)}:{timer % 60 < 10 ? `0${timer % 60}` : timer % 60}</h2>
+        <h2>Workout Timer: {Math.floor(timer / 60)}:{timer % 60 < 10 ? `0${timer % 60}` : timer % 60}</h2>
             {!timerRunning && (
-              <Button onClick={() => setTimerRunning(true)} className="mt-2">
+                <Button onClick={handleStartTimer} className="mt-2">
                 Start Timer
-              </Button>
+                </Button>
             )}
-          </div>
+        </div>
+
           {/* Hovered Exercise Details */}
           {hoveredExercise && (
             <Card className="max-w-md">
@@ -218,14 +271,15 @@ export default function AddStrengthWorkout() {
               </CardHeader>
               <CardContent>
                 <img
-                  src={exercises.find((e) => e.name === hoveredExercise)?.gif || ""}
-                  alt={hoveredExercise}
-                  className="w-full h-40 object-cover rounded mb-4"
+                    src={exercises.find((e) => e.name === hoveredExercise)?.gif || ""}
+                    alt={hoveredExercise}
+                    className="w-full h-auto max-h-60 object-contain rounded mb-4" // Updated class
                 />
                 <CardDescription>
-                  {exercises.find((e) => e.name === hoveredExercise)?.description || ""}
+                    {exercises.find((e) => e.name === hoveredExercise)?.description || ""}
                 </CardDescription>
-              </CardContent>
+            </CardContent>
+
             </Card>
           )}
 
@@ -316,6 +370,3 @@ export default function AddStrengthWorkout() {
     </SidebarProvider>
   );
 }
-
-
-

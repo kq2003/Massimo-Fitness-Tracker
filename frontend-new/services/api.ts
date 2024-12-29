@@ -90,6 +90,19 @@ export const fetchWorkoutPlan = async () => {
     }
 };
 
+export const fetchWorkoutPlan_add = async (day: string) => {
+    try {
+      const response = await axios.get(`${API_URL}/workout_plan_add`, {
+        params: { day },  // Pass the 'day' parameter
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching workout plan for adding strength:", error);
+      throw error;
+    }
+  };
+
 
 
 // Current Day Management
@@ -102,3 +115,4 @@ export const updateCurrentDay = (currentDay: number) =>
 
 export const generateWorkoutPlan = (coreLifts: object) =>
     axios.post(`${API_URL}/generate_workout_plan`, { core_lifts: coreLifts }, { withCredentials: true });
+

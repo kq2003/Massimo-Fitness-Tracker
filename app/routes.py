@@ -1,19 +1,20 @@
 from flask import Blueprint, request, jsonify, make_response
 from flask_login import login_required, current_user, login_user, logout_user
-from app.models import User, Location
+from app.models import User, Location, UserWorkoutProgress, WorkoutPlan
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
     add_strength_training, get_strength_training, update_strength_training, delete_strength_training, get_strength_training_by_exercise,
     get_unique_aerobic_exercise_types, get_unique_strength_exercise_types, get_aerobic_progress, get_all_workouts,
     generate_llm_recommendation
 )
-from app import bcrypt
+from app import bcrypt, db
 from flask_cors import cross_origin
 from datetime import datetime
 from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
 from config import Config
 import json
+
 
 main = Blueprint('main', __name__)
 
@@ -365,26 +366,68 @@ def fetch_workout_plan():
     return jsonify({'plan': plan_list}), 200
 
 
+@main.route('/workout_plan_add', methods=['GET'])
+@login_required
+def fetch_workout_plan_for_adding():
+    from app.models import WorkoutPlan
+    day = request.args.get('day')  # Optional: specific day e.g., 'pull'
+    if not day:
+        day = get_current_workout_day(current_user)
+        if not day:
+            return jsonify({'error': 'Workout plan not generated yet.'}), 400
+    else:
+        day = day.lower()
+
+    plan = WorkoutPlan.query.filter_by(user_id=current_user.id, day=day).order_by(WorkoutPlan.exercise_name).all()
+
+    if not plan:
+        return jsonify({'error': f'No workout plan found for {day}.'}), 404
+
+    workouts = [{
+        'exercise_name': workout.exercise_name,
+        'sets': [
+            # Repeat the set data `workout.sets` times (with default values)
+            {
+                'reps': workout.reps, 
+                'weight': workout.weight, 
+                'restTime': workout.rest_time, 
+                'effortLevel': workout.effort_level
+            } for _ in range(workout.sets)  # This will repeat the set `workout.sets` times
+        ],
+        'reps': workout.reps,
+        'weight': workout.weight,
+        'rest_time': workout.rest_time,
+        'effort_level': workout.effort_level
+    } for workout in plan]
+
+    print(workouts)
+
+    return jsonify({'day': day.capitalize(), 'workouts': workouts}), 200
+
+
+
+
+
+# app/routes.py
+
+def get_current_workout_day(user):
+    rotation = ['push', 'pull', 'legs', 'rest']
+    progress = UserWorkoutProgress.query.filter_by(user_id=user.id).first()
+    
+    if not progress or not progress.generation_date:
+        return None  # No workout plan generated yet
+    
+    days_elapsed = (datetime.utcnow().date() - progress.generation_date).days
+    return rotation[days_elapsed % len(rotation)]
 
 
 @main.route('/current_day', methods=['GET'])
 @login_required
 def get_current_day():
-    from app.models import UserWorkoutProgress
-    progress = UserWorkoutProgress.query.filter_by(user_id=current_user.id).first()
-    if progress:
-        return jsonify({'current_day': progress.current_day}), 200
-    else:
-        # Initialize with 'push' if no progress exists
-        from app import db
-        progress = UserWorkoutProgress(user_id=current_user.id, current_day='push')
-        db.session.add(progress)
-        db.session.commit()
-        return jsonify({'current_day': progress.current_day}), 200
-
-
-
-
+    day = get_current_workout_day(current_user)
+    if not day:
+        return jsonify({'current_day': None, 'message': 'Workout plan not generated yet.'}), 200
+    return jsonify({'current_day': day.capitalize()}), 200
 
 @main.route('/generate_workout_plan', methods=['POST'])
 @login_required
@@ -397,7 +440,7 @@ def generate_workout_plan():
 
     # Updated prompt with clearer instructions and expected format
     prompt = f"""
-    You are a personal fitness assistant. Generate a comprehensive 3-day Pull-Push-Leg workout split based on the following core lifts:
+    You are a personal fitness assistant. Generate a comprehensive 3-day Pull-Push-Leg workout split based on the following core lifts （1RM):
 
     - Bench Press: {core_lifts['bench']} kg
     - Pull-Ups: {core_lifts['pullUps']} reps
@@ -413,10 +456,11 @@ def generate_workout_plan():
     5. Include consistent fields: "exercise_name", "sets", "reps", "weight", "rest_time", and "effort_level" for each workout.
     6. Format the response as a valid JSON array enclosed within triple backticks and specify the language as JSON.
     7. For body weight exercises, such as pull ups, set weight as 0.
+    8. Give reasonable value for the weights. For instance, if the inputted 1rm for bench press is 120kg, 5 sets of 5 reps with 100kg is reasonable; with 70kg isn't.
 
     Example Format:
 
-    
+
     [
         {{
             "day": "push",
@@ -514,6 +558,41 @@ def generate_workout_plan():
                 required_keys = ["exercise_name", "sets", "reps", "weight", "rest_time", "effort_level"]
                 if not all(k in workout for k in required_keys):
                     return jsonify({'error': f'Each workout should have keys: {required_keys}.'}), 500
+
+        # === Added Functionalities Start ===
+
+        # 1. Delete existing workout plans for the user
+        WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
+
+        # 2. Save the new workout plan to the database
+        for day in workout_plan_json:
+            day_name = day['day'].lower()
+            for workout in day['workouts']:
+                new_plan = WorkoutPlan(
+                    user_id=current_user.id,
+                    day=day_name,
+                    exercise_name=workout['exercise_name'],
+                    sets=workout['sets'],
+                    reps=workout['reps'],
+                    weight=workout['weight'],
+                    rest_time=workout['rest_time'],
+                    effort_level=workout['effort_level']
+                )
+                db.session.add(new_plan)
+
+        # 3. Update or create UserWorkoutProgress with the current generation date
+        progress = UserWorkoutProgress.query.filter_by(user_id=current_user.id).first()
+        if progress:
+            progress.generation_date = datetime.utcnow().date()
+        else:
+            progress = UserWorkoutProgress(
+                user_id=current_user.id,
+                generation_date=datetime.utcnow().date()
+            )
+            db.session.add(progress)
+
+        db.session.commit()
+        # === Added Functionalities End ===
 
         return jsonify({'plan': workout_plan_json}), 200
     except Exception as e:
