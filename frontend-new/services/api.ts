@@ -74,3 +74,31 @@ export const getRecommendation = (userInput: string) =>
     export const fetchUsername = () =>
         axios.get(`${API_URL}/get_username`, { withCredentials: true });
     
+
+
+// Workout Plan Management
+export const saveWorkoutPlan = (planData: object) =>
+    axios.post(`${API_URL}/workout_plan`, { plan: planData }, { withCredentials: true });
+
+export const fetchWorkoutPlan = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/workout_plan`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching workout plan:", error);
+        throw error;
+    }
+};
+
+
+
+// Current Day Management
+export const fetchCurrentDay = () =>
+    axios.get(`${API_URL}/current_day`, { withCredentials: true });
+
+export const updateCurrentDay = (currentDay: number) =>
+    axios.put(`${API_URL}/current_day`, { current_day: currentDay }, { withCredentials: true });
+
+
+export const generateWorkoutPlan = (coreLifts: object) =>
+    axios.post(`${API_URL}/generate_workout_plan`, { core_lifts: coreLifts }, { withCredentials: true });

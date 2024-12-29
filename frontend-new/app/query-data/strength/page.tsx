@@ -29,10 +29,10 @@ const chartConfig = {
     label: "Total Volume (kg)",
     color: "hsl(var(--chart-2))",
   },
-  intensity: {
-    label: "Relative Intensity (%)",
-    color: "hsl(var(--chart-3))",
-  },
+//   intensity: {
+//     label: "Relative Intensity (%)",
+//     color: "hsl(var(--chart-3))",
+//   },
   oneRepMax: {
     label: "One Rep Max (kg)",
     color: "hsl(var(--chart-4))",

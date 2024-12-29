@@ -9,7 +9,11 @@ from app.services import (
 )
 from app import bcrypt
 from flask_cors import cross_origin
-# from datetime import datetime
+from datetime import datetime
+from llama_index.llms.openai import OpenAI
+from llama_index.core.llms import ChatMessage, MessageRole
+from config import Config
+import json
 
 main = Blueprint('main', __name__)
 
@@ -303,10 +307,215 @@ def recommendation():
 
 
 
+@main.route('/workout_plan', methods=['POST'])
+@login_required
+def save_workout_plan():
+    data = request.get_json()
+    plan = data.get('plan')  # List of workout data per day
+
+    if not plan:
+        return jsonify({'error': 'Workout plan is required'}), 400
+
+    # Delete old plan
+    from app.models import WorkoutPlan
+    WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
+
+    # Save new plan
+    from app import db
+    for day in plan:
+        for exercise in day['workouts']:
+            new_plan = WorkoutPlan(
+                user_id=current_user.id,
+                day=day['day'],
+                exercise_name=exercise['exercise_name'],
+                sets=exercise['sets'],
+                reps=exercise['reps'],
+                weight=exercise['weight'],
+                rest_time=exercise['rest_time'],
+                effort_level=exercise['effort_level']
+            )
+            db.session.add(new_plan)
+    db.session.commit()
+    return jsonify({'message': 'Workout plan saved successfully'}), 201
+
+
+
+@main.route('/workout_plan', methods=['GET'])
+@login_required
+def fetch_workout_plan():
+    from app.models import WorkoutPlan
+    plan = WorkoutPlan.query.filter_by(user_id=current_user.id).order_by(WorkoutPlan.day).all()
+    
+    result = {}
+    for workout in plan:
+        if workout.day not in result:
+            result[workout.day] = []
+        result[workout.day].append({
+            'exercise_name': workout.exercise_name,
+            'sets': workout.sets,
+            'reps': workout.reps,
+            'weight': workout.weight,
+            'rest_time': workout.rest_time,
+            'effort_level': workout.effort_level
+        })
+    
+    # Convert the dictionary to a list of WorkoutDay objects
+    plan_list = [{'day': day, 'workouts': workouts} for day, workouts in result.items()]
+    
+    return jsonify({'plan': plan_list}), 200
+
+
+
+
+@main.route('/current_day', methods=['GET'])
+@login_required
+def get_current_day():
+    from app.models import UserWorkoutProgress
+    progress = UserWorkoutProgress.query.filter_by(user_id=current_user.id).first()
+    if progress:
+        return jsonify({'current_day': progress.current_day}), 200
+    else:
+        # Initialize with 'push' if no progress exists
+        from app import db
+        progress = UserWorkoutProgress(user_id=current_user.id, current_day='push')
+        db.session.add(progress)
+        db.session.commit()
+        return jsonify({'current_day': progress.current_day}), 200
 
 
 
 
 
+@main.route('/generate_workout_plan', methods=['POST'])
+@login_required
+def generate_workout_plan():
+    data = request.get_json()
+    core_lifts = data.get('core_lifts')
 
+    if not core_lifts:
+        return jsonify({'error': 'Core lifts data is required'}), 400
 
+    # Updated prompt with clearer instructions and expected format
+    prompt = f"""
+    You are a personal fitness assistant. Generate a comprehensive 3-day Pull-Push-Leg workout split based on the following core lifts:
+
+    - Bench Press: {core_lifts['bench']} kg
+    - Pull-Ups: {core_lifts['pullUps']} reps
+    - Deadlift: {core_lifts['deadlift']} kg
+    - Back Squat: {core_lifts['squat']} kg
+    - Shoulder Press: {core_lifts['shoulderPress']} kg
+
+    Guidelines:
+    1. Each day should follow the Pull-Push-Leg split.
+    2. Include multiple exercises for each category: primary, secondary, and accessory.
+    3. Ensure all exercises have appropriate sets, reps, and weights.
+    4. Represent weights as numerical values in kilograms (e.g., 70.0).
+    5. Include consistent fields: "exercise_name", "sets", "reps", "weight", "rest_time", and "effort_level" for each workout.
+    6. Format the response as a valid JSON array enclosed within triple backticks and specify the language as JSON.
+    7. For body weight exercises, such as pull ups, set weight as 0.
+
+    Example Format:
+
+    
+    [
+        {{
+            "day": "push",
+            "workouts": [
+                {{
+                    "exercise_name": "Bench Press",
+                    "sets": 4,
+                    "reps": 8,
+                    "weight": 70.0,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Incline Dumbbell Press",
+                    "sets": 3,
+                    "reps": 10,
+                    "weight": 35.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }}
+            ]
+        }},
+        {{
+            "day": "pull",
+            "workouts": [
+                {{
+                    "exercise_name": "Deadlift",
+                    "sets": 4,
+                    "reps": 6,
+                    "weight": 100.0,
+                    "rest_time": 180,
+                    "effort_level": 8
+                }},
+                {{
+                    "exercise_name": "Pull Up",
+                    "sets": 3,
+                    "reps": 12,
+                    "weight": 0.0,
+                    "rest_time": 60,
+                    "effort_level": 8
+                }}
+
+            ]
+        }},
+        {{
+            "day": "leg",
+            "workouts": [
+                {{
+                    "exercise_name": "Back Squat",
+                    "sets": 4,
+                    "reps": 8,
+                    "weight": 80.0,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }}
+            ]
+        }}
+    ]
+    
+
+    Ensure that the JSON is properly formatted and can be parsed without errors.
+    """
+
+    try:
+        # Initialize the LLM with your API key and desired model
+        llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
+        messages = [
+            ChatMessage(role=MessageRole.SYSTEM, content="You are a personal fitness assistant."),
+            ChatMessage(role=MessageRole.USER, content=prompt)
+        ]
+        response = llm.chat(messages)
+        workout_plan = response.message.content
+
+        # Extract JSON from the response
+        try:
+            # Remove any code block formatting if present
+            if workout_plan.startswith("```") and workout_plan.endswith("```"):
+                workout_plan = "\n".join(workout_plan.split("\n")[1:-1])
+            workout_plan_json = json.loads(workout_plan)
+            print("Workout Plan JSON:", workout_plan_json)
+        except json.JSONDecodeError as e:
+            print("JSON Decode Error:", e)
+            return jsonify({'error': 'Invalid response format from GPT. Please try again.'}), 500
+
+        # Optional: Further validation to ensure structure matches expectations
+        if not isinstance(workout_plan_json, list):
+            return jsonify({'error': 'Workout plan should be a list of days.'}), 500
+
+        for day in workout_plan_json:
+            if not all(k in day for k in ("day", "workouts")):
+                return jsonify({'error': 'Each day should have "day" and "workouts" keys.'}), 500
+            if not isinstance(day["workouts"], list):
+                return jsonify({'error': '"workouts" should be a list.'}), 500
+            for workout in day["workouts"]:
+                required_keys = ["exercise_name", "sets", "reps", "weight", "rest_time", "effort_level"]
+                if not all(k in workout for k in required_keys):
+                    return jsonify({'error': f'Each workout should have keys: {required_keys}.'}), 500
+
+        return jsonify({'plan': workout_plan_json}), 200
+    except Exception as e:
+        print("Error in generate_workout_plan:", e)
+        return jsonify({'error': str(e)}), 500

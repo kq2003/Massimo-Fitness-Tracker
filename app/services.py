@@ -264,3 +264,6 @@ def generate_llm_recommendation(user_id, user_input, indices_dir: str):
     return response.message.content
 
 
+
+
+
