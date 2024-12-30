@@ -1,0 +1,19 @@
+# Exclude virtual environments
+venv/
+
+# Exclude local development tools
+.env
+.pytest_cache/
+__pycache__/
+
+# Exclude test files
+tests/
+*.test.*
+
+# Exclude documentation files
+README.md
+docs/
+
+# Exclude other unnecessary files
+.git/
+.gitignore
