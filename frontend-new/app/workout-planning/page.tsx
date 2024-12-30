@@ -212,6 +212,24 @@ type WorkoutDay = {
     workouts: Workout[];
 };
 
+// Define the type of the response from generateWorkoutPlan API
+type GenerateWorkoutPlanResponse = {
+    data: {
+        plan: {
+            day: string;
+            workouts: {
+                exercise_name: string;
+                sets: number;
+                reps: number;
+                weight: string | number; // "Body Weight" is a string, else it's a number
+                rest_time: number;
+                effort_level: number;
+            }[];
+        }[];
+    };
+};
+  
+
 export default function WorkoutPlanningPage() {
     const [coreLifts, setCoreLifts] = useState<CoreLifts>({
         bench: 0,
@@ -242,11 +260,40 @@ export default function WorkoutPlanningPage() {
         loadWorkoutPlan();
     }, []);
 
+    // const handleGeneratePlan = async () => {
+    //     setGenerating(true);
+
+    //     try {
+    //         const gptResponse = await generateWorkoutPlan({
+    //             bench: coreLifts.bench,
+    //             pullUps: coreLifts.pullUps,
+    //             deadlift: coreLifts.deadlift,
+    //             squat: coreLifts.squat,
+    //             shoulderPress: coreLifts.shoulderPress,
+    //         });
+
+    //         const processedPlan: WorkoutDay[] = gptResponse.data.plan.map((day: any) => ({
+    //             day: day.day,
+    //             workouts: day.workouts.map((workout: any) => ({
+    //                 ...workout,
+    //                 weight: workout.weight === "Body Weight" ? 0.0 : workout.weight,
+    //             })),
+    //         }));
+
+    //         setWorkoutPlan(processedPlan);
+    //         console.log(processedPlan);
+    //     } catch (error) {
+    //         console.error("Error generating workout plan:", error);
+    //         alert("Failed to generate a workout plan. Please try again.");
+    //     } finally {
+    //         setGenerating(false);
+    //     }
+    // };
     const handleGeneratePlan = async () => {
         setGenerating(true);
 
         try {
-            const gptResponse = await generateWorkoutPlan({
+            const gptResponse: GenerateWorkoutPlanResponse = await generateWorkoutPlan({
                 bench: coreLifts.bench,
                 pullUps: coreLifts.pullUps,
                 deadlift: coreLifts.deadlift,
@@ -254,11 +301,12 @@ export default function WorkoutPlanningPage() {
                 shoulderPress: coreLifts.shoulderPress,
             });
 
-            const processedPlan: WorkoutDay[] = gptResponse.data.plan.map((day: any) => ({
+            // Properly map the response
+            const processedPlan: WorkoutDay[] = gptResponse.data.plan.map((day) => ({
                 day: day.day,
-                workouts: day.workouts.map((workout: any) => ({
+                workouts: day.workouts.map((workout) => ({
                     ...workout,
-                    weight: workout.weight === "Body Weight" ? 0.0 : workout.weight,
+                    weight: typeof workout.weight === "string" ? 0.0 : workout.weight, // Ensure weight is a number
                 })),
             }));
 

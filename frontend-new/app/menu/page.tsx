@@ -43,7 +43,7 @@
 
 "use client";
 
-import RecommendationAgent from '@/components/RecommendationAgent';
+// import RecommendationAgent from '@/components/RecommendationAgent';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
@@ -95,9 +95,13 @@ export default function MenuPage() {
                     </p>
                     {workoutsExist ? (
                         <>
-                            <p className="text-gray-600 mb-4">
+                            {/* <p className="text-gray-600 mb-4">
                                 Click "Add Workout" above to start your workout, or "View and Edit Workout" to adjust your current plan.
+                            </p> */}
+                            <p className="text-gray-600 mb-4">
+                                Click &quot;Add Workout&quot; above to start your workout, or &quot;View and Edit Workout&quot; to adjust your current plan.
                             </p>
+
                             <Button
                                 variant="default"
                                 className="mt-4 w-48"

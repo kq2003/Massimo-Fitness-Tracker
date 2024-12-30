@@ -26,6 +26,7 @@ export default function AvatarUploadPage() {
                 await updateUser({ avatar });
                 alert('Avatar uploaded successfully!');
             } catch (error) {
+                console.log("Error" + error);
                 alert('Failed to upload avatar. Please try again.');
             }
         } else {

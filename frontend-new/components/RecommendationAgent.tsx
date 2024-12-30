@@ -29,6 +29,7 @@ export default function RecommendationAgent({
             const botMessage = { sender: 'Massimo', content: response.data };
             setMessages((prev) => [...prev, botMessage]);
         } catch (error) {
+            console.log('Error fetching recommendation:', error);
             const errorMessage = { sender: 'Massimo', content: 'Something went wrong. Try again!' };
             setMessages((prev) => [...prev, errorMessage]);
         }

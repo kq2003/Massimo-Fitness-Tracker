@@ -20,6 +20,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { addStrengthWorkout, fetchCurrentDay, fetchWorkoutPlan_add } from "@/services/api";
 
+type Set = {
+    reps: number;
+    weight: number;
+    restTime: number;
+    effortLevel: number;
+  };
+
+  
 // Updated Exercise type to include multiple sets
 type Exercise = {
   name: string;
@@ -30,6 +38,16 @@ type Exercise = {
     effortLevel: number;
   }[];
 };
+
+type Workout = {
+    exercise_name: string;
+    sets: {
+    reps: number;
+    weight: number;
+    restTime: number;
+    effortLevel: number;
+    }[];
+    };
 
 // Mock data for exercises
 const exercises = [
@@ -86,9 +104,9 @@ useEffect(() => {
             const planRes = await fetchWorkoutPlan_add(currentDay);
             console.log(planRes)
             
-            setSelectedExercises(planRes['workouts'].map((w: any) => ({
+            setSelectedExercises(planRes['workouts'].map((w: Workout) => ({
                 name: w.exercise_name,
-                sets: w.sets.map((set: any) => ({
+                sets: w.sets.map((set: Set) => ({
                     reps: set.reps,
                     weight: set.weight,
                     restTime: set.restTime,
@@ -99,6 +117,7 @@ useEffect(() => {
         } catch (err) {
             console.log("The error is" + err);
             setError("Failed to load workout plan.");
+            console.log(error);
         } finally {
             setLoading(false);
         }
