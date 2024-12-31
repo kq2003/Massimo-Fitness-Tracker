@@ -125,6 +125,51 @@ useEffect(() => {
 
     loadData();
 }, []);
+// useEffect(() => {
+//   const loadData = async () => {
+//     try {
+//       setLoading(true);
+
+//       // Fetch the current day
+//       const dayRes = await fetchCurrentDay();
+//       const day = dayRes.data.current_day;
+//       console.log("Fetched current day:", day);
+
+//       if (!day) {
+//         setError(dayRes.data.message);
+//         setLoading(false);
+//         return;
+//       }
+
+//       const lowerCaseDay = day.toLowerCase(); // Convert to lowercase for consistency
+//       setCurrentDay(lowerCaseDay); // Update state for UI
+
+//       // Fetch workout plan using the day directly from the response
+//       const planRes = await fetchWorkoutPlan_add(currentDay);
+//       console.log("Fetched workout plan:", planRes);
+
+//       setSelectedExercises(
+//         planRes['workouts'].map((w: Workout) => ({
+//           name: w.exercise_name,
+//           sets: w.sets.map((set: Set) => ({
+//             reps: set.reps,
+//             weight: set.weight,
+//             restTime: set.restTime,
+//             effortLevel: set.effortLevel,
+//           })),
+//         }))
+//       );
+//     } catch (err) {
+//       console.error("Error fetching workout plan:", err);
+//       setError("Failed to load workout plan.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   loadData();
+// }, []); // Empty dependency array, so it only runs once
+
 
 
   useEffect(() => {
