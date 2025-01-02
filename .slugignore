@@ -1,15 +1,22 @@
+# Ignore all frontend directories
 frontend/
 frontend-new/
+
+# Ignore unnecessary directories
+flask_session/
+indices/
+migrations/
+myenv/
 node_modules/
 pdfs/
-myenv/
 __pycache__/
-*.pyc
-*.log
-*.mp4
 
-# Ignore package management files (for frontend)
-package.json
+# Ignore unnecessary files
+cookies.txt
 package-lock.json
+package.json
+README.md
 tailwind.config.js
+tricep.mp4
+yolotry.py
 
