@@ -1,19 +1,29 @@
-# Exclude virtual environments
-venv/
+# Ignore everything except the backend app
+*
 
-# Exclude local development tools
-.env
-.pytest_cache/
+# Whitelist the app folder
+!app/
+
+# Whitelist necessary backend files
+!config.py
+!requirements.txt
+!runtime.txt
+!Procfile
+
+# Ignore common frontend and development files
+frontend/
+frontend-new/
+node_modules/
+*.log
+*.mp4
+*.json
+*.lock
+tailwind.config.js
+cookies.txt
+pdfs/
+myenv/
+
+# Ignore Python cache
 __pycache__/
+*.pyc
 
-# Exclude test files
-tests/
-*.test.*
-
-# Exclude documentation files
-README.md
-docs/
-
-# Exclude other unnecessary files
-.git/
-.gitignore
