@@ -1,4 +1,14 @@
+# Ignore everything except the backend app
+*
 
+# Whitelist the app folder
+!app/
+!config.py
+!requirements.txt
+!runtime.txt
+!Procfile
+
+# Ignore common frontend and development files
 frontend/
 frontend-new/
 node_modules/
@@ -7,8 +17,11 @@ node_modules/
 *.json
 *.lock
 tailwind.config.js
-cookies.txts
+cookies.txt
 pdfs/
 myenv/
+
+# Ignore Python cache
+__pycache__/
 *.pyc
 
