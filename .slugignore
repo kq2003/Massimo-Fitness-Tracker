@@ -1,14 +1,6 @@
 # Ignore everything except the backend app
 *
 
-# Whitelist the app folder
-!app/
-
-# Whitelist necessary backend files
-!config.py
-!requirements.txt
-!runtime.txt
-!Procfile
 
 # Ignore common frontend and development files
 frontend/
