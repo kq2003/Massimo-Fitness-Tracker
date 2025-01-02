@@ -1,27 +1,12 @@
-# Ignore everything except the backend app
+# Ignore everything by default
 *
 
 # Whitelist the app folder
 !app/
-!config.py
+
+# Whitelist essential Python files in the root
 !requirements.txt
 !runtime.txt
 !Procfile
-
-# Ignore common frontend and development files
-frontend/
-frontend-new/
-node_modules/
-*.log
-*.mp4
-*.json
-*.lock
-tailwind.config.js
-cookies.txt
-pdfs/
-myenv/
-
-# Ignore Python cache
-__pycache__/
-*.pyc
+!config.py
 
