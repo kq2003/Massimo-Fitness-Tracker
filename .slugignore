@@ -1,4 +1,4 @@
-# Ignore all frontend directories
+<!-- # Ignore all frontend directories
 frontend/
 frontend-new/
 
@@ -18,5 +18,5 @@ package.json
 README.md
 tailwind.config.js
 tricep.mp4
-yolotry.py
+yolotry.py -->
 
