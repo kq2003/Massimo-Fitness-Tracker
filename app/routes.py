@@ -55,7 +55,7 @@ from sqlalchemy import or_
 def root():
     return redirect(url_for('main.login'))  # Redirect to the /login route
 
-@main.route('/login', methods=['POST'])
+@main.route('/login', methods=['GET', 'POST'])
 def login():
     data = request.get_json()
     identifier = data['email']  # Can be either email or username
