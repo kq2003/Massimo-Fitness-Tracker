@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, redirect, url_for
-
 from flask_login import login_required, current_user, login_user, logout_user
 from app.models import User, Location, UserWorkoutProgress, WorkoutPlan
+from app.custom_cors import use_cors
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
     add_strength_training, get_strength_training, update_strength_training, delete_strength_training, get_strength_training_by_exercise,
