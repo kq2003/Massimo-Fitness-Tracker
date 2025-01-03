@@ -51,7 +51,7 @@ def register():
 
 from sqlalchemy import or_
 
-@main.route('/')
+@main.route('/', methods=['GET'])
 def root():
     return "Welcome to Massimo"  # Redirect to the /login route
 
