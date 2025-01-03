@@ -9,7 +9,7 @@ from app.services import (
     generate_llm_recommendation
 )
 from app import bcrypt, db
-from flask_cors import cross_origin, CORS
+#from flask_cors import cross_origin, CORS
 from datetime import datetime
 from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
@@ -21,10 +21,7 @@ import os
 main = Blueprint('main', __name__)
 
 @main.route('/register', methods=['POST'])
-# @cross_origin(supports_credentials=True, origins=[
-    # "localhost:3000", 
-    # "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    # ])
+# @use_cors()
 def register():
     from app import db
     data = request.get_json()
@@ -37,10 +34,7 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 # @main.route('/login', methods=['POST'])
-# # @cross_origin(supports_credentials=True, origins=[
-    # "localhost:3000", 
-    # "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    # ])
+# # @use_cors()
 # def login():
 #     data = request.get_json()
 #     user = User.query.filter_by(email=data['email']).first() #TODO Alex: is filtering by email enough?
@@ -96,20 +90,14 @@ def update_user():
 
 
 @main.route('/logout', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=[
-    "localhost:3000", 
-    "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    ])
+@use_cors()
 @login_required
 def logout():
     logout_user()
     return jsonify({'message': 'Logged out successfully'}), 200
 
 @main.route('/add_aerobic', methods=['POST'])
-# @cross_origin(supports_credentials=True, origins=[
-    # "localhost:3000", 
-    # "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    # ])
+# @use_cors()
 @login_required
 def add_aerobic():
     data = request.get_json()
@@ -151,10 +139,7 @@ def delete_aerobic(aerobic_id):
     return jsonify({'message': 'Session not found'}), 404
 
 @main.route('/add_strength', methods=['POST'])
-# @cross_origin(supports_credentials=True, origins=[
-    # "localhost:3000", 
-    # "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    # ])
+# @use_cors()
 @login_required
 def add_strength():
     data = request.get_json()
@@ -162,10 +147,7 @@ def add_strength():
     return jsonify({'message': 'Strength training added', 'id': strength_session.id}), 201
 
 @main.route('/get_strength', methods=['GET'])
-@cross_origin(supports_credentials=True, origins=[
-    "localhost:3000", 
-    "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    ])
+@use_cors()
 @login_required
 def get_strength():
     sessions = get_strength_training(current_user.id)
@@ -173,10 +155,7 @@ def get_strength():
     return jsonify(result), 200
 
 @main.route('/update_strength/<int:strength_id>', methods=['PUT'])
-@cross_origin(supports_credentials=True, origins=[
-    "localhost:3000", 
-    "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    ])
+@use_cors()
 @login_required
 def update_strength(strength_id):
     updates = request.get_json()
@@ -186,10 +165,7 @@ def update_strength(strength_id):
     return jsonify({'message': 'Session not found'}), 404
 
 @main.route('/delete_strength/<int:strength_id>', methods=['DELETE'])
-@cross_origin(supports_credentials=True, origins=[
-    "localhost:3000", 
-    "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"
-    ])
+@use_cors()
 
 @login_required
 def delete_strength(strength_id):
