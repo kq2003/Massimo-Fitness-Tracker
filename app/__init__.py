@@ -29,7 +29,7 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     Migrate(app, db)
-    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+    CORS(app, supports_credentials=True, origins=["https://git.heroku.com/rocky-island-92759.git"])
     
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
