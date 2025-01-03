@@ -50,6 +50,10 @@ def register():
 
 from sqlalchemy import or_
 
+@main.route('/')
+def root():
+    return redirect(url_for('main.login'))  # Redirect to the /login route
+
 @main.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
