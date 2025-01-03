@@ -598,3 +598,9 @@ def generate_workout_plan():
     except Exception as e:
         print("Error in generate_workout_plan:", e)
         return jsonify({'error': str(e)}), 500
+
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204  # Respond with "No Content" for favicon requests
