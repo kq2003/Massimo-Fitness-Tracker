@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://rocky-island-92759-454647932385.herokuapp.com/';
+const API_URL = 'https://rocky-island-92759-454647932385.herokuapp.com';
 
 // User authentication
 export const registerUser = (registerData: object) =>
