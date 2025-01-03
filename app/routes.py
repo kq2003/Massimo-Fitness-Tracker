@@ -15,6 +15,7 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
 from config import Config
 import json
+import os
 
 
 main = Blueprint('main', __name__)

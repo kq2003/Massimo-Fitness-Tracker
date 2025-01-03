@@ -6,6 +6,7 @@ from collections import defaultdict
 from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
 import time
+import os
 
 
 # from llama_index import GPTVectorStoreIndex, Document
