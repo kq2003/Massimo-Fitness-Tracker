@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for
+
 from flask_login import login_required, current_user, login_user, logout_user
 from app.models import User, Location, UserWorkoutProgress, WorkoutPlan
 from app.services import (
