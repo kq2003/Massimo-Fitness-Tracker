@@ -90,7 +90,7 @@ def update_user():
 
 
 @main.route('/logout', methods=['POST'])
-@cross_origin(supports_credentials=True, origins=["http://localhost:3000"])
+@cross_origin(supports_credentials=True, origins=["massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app"])
 @login_required
 def logout():
     logout_user()
