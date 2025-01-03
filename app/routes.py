@@ -429,6 +429,10 @@ def get_current_day():
         return jsonify({'current_day': None, 'message': 'Workout plan not generated yet.'}), 200
     return jsonify({'current_day': day.capitalize()}), 200
 
+@main.route('/favicon.ico')
+def favicon():
+    return '', 204  # Respond with "No Content" for favicon requests
+
 @main.route('/generate_workout_plan', methods=['POST'])
 @login_required
 def generate_workout_plan():
@@ -598,9 +602,3 @@ def generate_workout_plan():
     except Exception as e:
         print("Error in generate_workout_plan:", e)
         return jsonify({'error': str(e)}), 500
-
-
-
-@app.route('/favicon.ico')
-def favicon():
-    return '', 204  # Respond with "No Content" for favicon requests
