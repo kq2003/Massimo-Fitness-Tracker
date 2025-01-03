@@ -29,7 +29,7 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     Migrate(app, db)
-    CORS(app, resources={r"/*": {"origins": "https://massimo-frontend-7mbcpsyrs-aos-projects-2be27b28.vercel.app"}})
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "https://massimo-frontend-7mbcpsyrs-aos-projects-2be27b28.vercel.app"}})
     
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
