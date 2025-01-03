@@ -259,7 +259,7 @@ def generate_llm_recommendation(user_id, user_input, indices_dir: str):
         ChatMessage(role=MessageRole.USER, content=prompt)
     ]
 
-    llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
+    llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
     response = llm.chat(messages)
     return response.message.content
 

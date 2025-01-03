@@ -535,7 +535,7 @@ def generate_workout_plan():
 
     try:
         # Initialize the LLM with your API key and desired model
-        llm = OpenAI(api_key=Config.OPENAI_API_KEY, model="gpt-3.5-turbo")
+        llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
         messages = [
             ChatMessage(role=MessageRole.SYSTEM, content="You are a personal fitness assistant."),
             ChatMessage(role=MessageRole.USER, content=prompt)
