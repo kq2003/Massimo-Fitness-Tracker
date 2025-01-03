@@ -1,4 +1,5 @@
-web: waitress-serve --port=$PORT website:app
+web: waitress-serve --port=$PORT "app:create_app()"
+
 
 
 
