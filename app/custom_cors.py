@@ -5,6 +5,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://massimo-frontend-7mbcpsyrs-aos-projects-2be27b28.vercel.app",
     "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app",
+    "https://massimo-frontend-aos-projects-2be27b28.vercel.app",
     "https://massimo-frontend.vercel.app"
 ]
 
