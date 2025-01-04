@@ -418,7 +418,7 @@ def fetch_workout_plan_for_adding():
 # app/routes.py
 
 def get_current_workout_day(user):
-    rotation = ['push', 'pull', 'legs', 'rest']
+    rotation = ['push', 'pull', 'leg', 'rest']
     progress = UserWorkoutProgress.query.filter_by(user_id=user.id).first()
     
     if not progress or not progress.generation_date:
