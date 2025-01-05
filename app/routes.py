@@ -21,7 +21,7 @@ import os
 main = Blueprint('main', __name__)
 
 @main.route('/register', methods=['POST'])
-# @use_cors()
+@use_cors()
 def register():
     from app import db
     data = request.get_json()
@@ -53,10 +53,12 @@ def register():
 from sqlalchemy import or_
 
 @main.route('/', methods=['GET'])
+@use_cors()
 def root():
     return "Welcome to Massimo"  # Redirect to the /login route
 
 @main.route('/login', methods=['GET', 'POST'])
+@use_cors()
 def login():
     data = request.get_json()
     identifier = data['email']  # Can be either email or username
@@ -77,6 +79,7 @@ def login():
     
 
 @main.route('/update_user', methods=['POST'])
+@use_cors()
 @login_required
 def update_user():
     data = request.get_json()
@@ -97,7 +100,7 @@ def logout():
     return jsonify({'message': 'Logged out successfully'}), 200
 
 @main.route('/add_aerobic', methods=['POST'])
-# @use_cors()
+@use_cors()
 @login_required
 def add_aerobic():
     data = request.get_json()
@@ -106,6 +109,7 @@ def add_aerobic():
 
 
 @main.route('/get_username', methods=['GET'])
+@use_cors()
 @login_required
 def get_username():
     if not current_user.is_authenticated:
@@ -115,6 +119,7 @@ def get_username():
 
 
 @main.route('/get_aerobic', methods=['GET'])
+@use_cors()
 @login_required
 def get_aerobic():
     sessions = get_aerobic_training(current_user.id)
@@ -122,6 +127,7 @@ def get_aerobic():
     return jsonify(result), 200
 
 @main.route('/update_aerobic/<int:aerobic_id>', methods=['PUT'])
+@use_cors()
 @login_required
 def update_aerobic(aerobic_id):
     updates = request.get_json()
@@ -131,6 +137,7 @@ def update_aerobic(aerobic_id):
     return jsonify({'message': 'Session not found'}), 404
 
 @main.route('/delete_aerobic/<int:aerobic_id>', methods=['DELETE'])
+@use_cors()
 @login_required
 def delete_aerobic(aerobic_id):
     success = delete_aerobic_training(aerobic_id)
@@ -139,7 +146,7 @@ def delete_aerobic(aerobic_id):
     return jsonify({'message': 'Session not found'}), 404
 
 @main.route('/add_strength', methods=['POST'])
-# @use_cors()
+@use_cors()
 @login_required
 def add_strength():
     data = request.get_json()
@@ -166,7 +173,6 @@ def update_strength(strength_id):
 
 @main.route('/delete_strength/<int:strength_id>', methods=['DELETE'])
 @use_cors()
-
 @login_required
 def delete_strength(strength_id):
     success = delete_strength_training(strength_id)
@@ -201,6 +207,7 @@ def delete_strength(strength_id):
 #     }
 #     return jsonify(response), 200
 @main.route('/workout_progress/<exercise_type>', methods=['GET'])
+@use_cors()
 @login_required
 def workout_progress(exercise_type):
     sessions = get_strength_training_by_exercise(current_user.id, exercise_type)
@@ -243,12 +250,14 @@ def calculate_1rm(weight, reps):
 
 
 @main.route('/strength_exercise_types', methods=['GET'])
+@use_cors()
 @login_required
 def get_strength_exercise_types():
     strength_types = get_unique_strength_exercise_types()
     return jsonify(strength_types), 200
 
 @main.route('/aerobic_exercise_types', methods=['GET'])
+@use_cors()
 @login_required
 def get_aerobic_exercise_types():
     aerobic_types = get_unique_aerobic_exercise_types()
@@ -256,6 +265,7 @@ def get_aerobic_exercise_types():
 
 
 @main.route('/aerobic_progress/<exercise_type>', methods=['GET'])
+@use_cors()
 @login_required
 def aerobic_progress(exercise_type):
     """Route for fetching aerobic training progress data for a specific exercise."""
@@ -263,6 +273,7 @@ def aerobic_progress(exercise_type):
     return jsonify(response), 200
 
 @main.route('/all_workouts', methods=['GET'])
+@use_cors()
 @login_required
 def all_workouts():
     """Route for fetching all workouts for the listed display view."""
@@ -270,6 +281,7 @@ def all_workouts():
     return jsonify(workouts), 200
 
 @main.route('/update_location_consent', methods=['POST'])
+@use_cors()
 @login_required
 def update_location_consent():
     data = request.get_json()
@@ -280,6 +292,7 @@ def update_location_consent():
 
 
 @main.route('/update_location', methods=['POST'])
+@use_cors()
 @login_required
 def update_location():
     if not current_user.location_consent:
@@ -298,6 +311,7 @@ def update_location():
 
 
 @main.route('/recommendation', methods=['GET'])
+@use_cors()
 @login_required
 def recommendation():
     try:
@@ -316,6 +330,7 @@ def recommendation():
 
 
 @main.route('/workout_plan', methods=['POST'])
+@use_cors()
 @login_required
 def save_workout_plan():
     data = request.get_json()
@@ -349,6 +364,7 @@ def save_workout_plan():
 
 
 @main.route('/workout_plan', methods=['GET'])
+@use_cors()
 @login_required
 def fetch_workout_plan():
     from app.models import WorkoutPlan
@@ -374,6 +390,7 @@ def fetch_workout_plan():
 
 
 @main.route('/workout_plan_add', methods=['GET'])
+@use_cors()
 @login_required
 def fetch_workout_plan_for_adding():
     from app.models import WorkoutPlan
@@ -429,6 +446,7 @@ def get_current_workout_day(user):
 
 
 @main.route('/current_day', methods=['GET'])
+@use_cors()
 @login_required
 def get_current_day():
     day = get_current_workout_day(current_user)
@@ -437,10 +455,12 @@ def get_current_day():
     return jsonify({'current_day': day.capitalize()}), 200
 
 @main.route('/favicon.ico')
+@use_cors()
 def favicon():
     return '', 204  # Respond with "No Content" for favicon requests
 
 @main.route('/generate_workout_plan', methods=['POST'])
+@use_cors()
 @login_required
 def generate_workout_plan():
     data = request.get_json()
