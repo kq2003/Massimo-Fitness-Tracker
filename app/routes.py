@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify, make_response, redirect, url_for
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for, session
 from flask_login import login_required, current_user, login_user, logout_user
-from app.models import User, Location, UserWorkoutProgress, WorkoutPlan
+from app.models import User, Location, UserWorkoutProgress, WorkoutPlan, ActiveSessions
 from app.custom_cors import use_cors
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
@@ -16,6 +16,7 @@ from llama_index.core.llms import ChatMessage, MessageRole
 from config import Config
 import json
 import os
+import uuid
 
 
 main = Blueprint('main', __name__)
@@ -63,8 +64,17 @@ def login():
     data = request.get_json()
     identifier = data['email']  # Can be either email or username
     user = User.query.filter(or_(User.email == identifier, User.username == identifier)).first()
-
     if user and bcrypt.check_password_hash(user.password, data['password']):
+        session_token = str(uuid.uuid4())
+        existing_session = db.session.query(ActiveSessions).filter_by(user_id = user.id).first()
+        if existing_session:
+            existing_session.token = session_token
+            existing_session.created_at = datetime.utcnow()
+        else:
+            new_session = ActiveSessions(user_id=user.id, token=session_token)
+            db.session.add(new_session)
+        db.session.commit()
+
         login_user(user)
         response = make_response(jsonify({
             'message': 'Logged in successfully',
@@ -73,6 +83,14 @@ def login():
             'username': user.username,
             'avatar': user.avatar
         }), 200)
+
+        response.set_cookie(
+            'session_token',
+            session_token,
+            httponly=True, 
+            secure=True, 
+            samesite='None' 
+        )
         return response
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
