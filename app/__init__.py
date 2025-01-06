@@ -29,12 +29,23 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     Migrate(app, db)
+
+    #for local, switch back later
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": r"https://.*\.vercel\.app"}})
 
     
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True  # Use HTTPS in production
+
+
+    # ###for local only
+    # app.config['SECRET_KEY'] = 'your_secret_key'
+    # app.config['SESSION_COOKIE_SECURE'] = False
+    # app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    # app.config['REMEMBER_COOKIE_SECURE'] = False
+    # app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
+
     Session(app)
 
     # Register blueprints
