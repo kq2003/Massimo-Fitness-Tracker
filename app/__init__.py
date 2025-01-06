@@ -38,6 +38,8 @@ def create_app():
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True  # Use HTTPS in production
 
+    app.config['SESSION_PERMANENT'] = True
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
     # ###for local only
     # app.config['SECRET_KEY'] = 'your_secret_key'

@@ -67,13 +67,13 @@ def login():
     if user and bcrypt.check_password_hash(user.password, data['password']):
         session_token = str(uuid.uuid4())
         existing_session = db.session.query(ActiveSessions).filter_by(user_id = user.id).first()
-        # if existing_session:
-        #     existing_session.token = session_token
-        #     existing_session.created_at = datetime.utcnow()
-        # else:
-        #     new_session = ActiveSessions(user_id=user.id, token=session_token)
-        #     db.session.add(new_session)
-        # db.session.commit()
+        if existing_session:
+            existing_session.token = session_token
+            existing_session.created_at = datetime.utcnow()
+        else:
+            new_session = ActiveSessions(user_id=user.id, token=session_token)
+            db.session.add(new_session)
+        db.session.commit()
 
         login_user(user)
         response = make_response(jsonify({
