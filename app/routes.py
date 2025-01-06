@@ -65,8 +65,8 @@ def login():
     identifier = data['email']  # Can be either email or username
     user = User.query.filter(or_(User.email == identifier, User.username == identifier)).first()
     if user and bcrypt.check_password_hash(user.password, data['password']):
-        # session_token = str(uuid.uuid4())
-        # existing_session = db.session.query(ActiveSessions).filter_by(user_id = user.id).first()
+        session_token = str(uuid.uuid4())
+        existing_session = db.session.query(ActiveSessions).filter_by(user_id = user.id).first()
         # if existing_session:
         #     existing_session.token = session_token
         #     existing_session.created_at = datetime.utcnow()
