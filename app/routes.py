@@ -480,7 +480,7 @@ def generate_workout_plan():
     - Shoulder Press: {core_lifts['shoulderPress']} kg
 
     Guidelines:
-    1. Each day should follow the Pull-Push-Leg split.
+    1. Each day should follow the Pull-Push-Leg split. Generate at least 5 workouts for each day.
     2. Include multiple exercises for each category: primary, secondary, and accessory.
     3. Ensure all exercises have appropriate sets, reps, and weights.
     4. Represent weights as numerical values in kilograms (e.g., 70.0).
@@ -509,6 +509,30 @@ def generate_workout_plan():
                     "sets": 3,
                     "reps": 10,
                     "weight": 35.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }}
+                                {{
+                    "exercise_name": "Tricep Push Down",
+                    "sets": 4,
+                    "reps": 8,
+                    "weight": 10.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }}
+                                {{
+                    "exercise_name": "Dips",
+                    "sets": 3,
+                    "reps": 10,
+                    "weight": 0.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }}
+                                {{
+                    "exercise_name": "Machine Pec Flies",
+                    "sets": 3,
+                    "reps": 10,
+                    "weight": 60.0,
                     "rest_time": 90,
                     "effort_level": 6
                 }}
