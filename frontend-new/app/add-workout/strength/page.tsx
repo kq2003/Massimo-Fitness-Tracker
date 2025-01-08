@@ -19,6 +19,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { addStrengthWorkout, fetchCurrentDay, fetchWorkoutPlan_add } from "@/services/api";
+import AuthenticatedPage from "@/components/AuthenticatedPage";
 
 type Set = {
     reps: number;
@@ -266,6 +267,7 @@ useEffect(() => {
   };
 
   return (
+    <AuthenticatedPage>
     <SidebarProvider>
       <div className="flex h-screen">
         {/* Sidebar */}
@@ -296,7 +298,7 @@ useEffect(() => {
                     <SidebarMenuButton asChild>
                       <button
                         onClick={() => {
-                          window.location.href = "/menu";
+                          window.location.href = "/";
                         }}
                         className="w-full text-left text-red-500 hover:bg-red-100 p-2 rounded"
                       >
@@ -432,5 +434,6 @@ useEffect(() => {
         </div>
       </div>
     </SidebarProvider>
+    </AuthenticatedPage>
   );
 }

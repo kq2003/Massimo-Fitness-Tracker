@@ -60,7 +60,7 @@ export default function Header() {
         <header className="flex justify-between items-center p-4 bg-white shadow-md">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-                <Link href="/menu">
+                <Link href="/">
                     <img
                         src="/massimo-logo.png"
                         alt="Massimo Fitness Tracker"

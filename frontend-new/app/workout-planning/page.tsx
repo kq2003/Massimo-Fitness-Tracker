@@ -189,6 +189,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { saveWorkoutPlan, generateWorkoutPlan, fetchWorkoutPlan } from "@/services/api"; // Updated import
+import AuthenticatedPage from "@/components/AuthenticatedPage";
 
 type CoreLifts = {
     bench: number;
@@ -335,6 +336,7 @@ export default function WorkoutPlanningPage() {
     }
 
     return (
+        <AuthenticatedPage>
         <div className="flex min-h-screen bg-gray-100">
             {/* Sidebar for Core Lifts */}
             <aside className="w-64 bg-white p-4 border-r border-gray-200">
@@ -436,5 +438,6 @@ export default function WorkoutPlanningPage() {
                 )}
             </main>
             </div>
+            </AuthenticatedPage>
         );
     }
