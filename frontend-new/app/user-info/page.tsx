@@ -17,44 +17,31 @@ import {
 import { Home, User2, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { fetchUsername } from '@/services/api'; // API call to fetch username
 
 export default function UserInfoPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Fetch current user info on mount
   useEffect(() => {
-    fetchUserInfo();
-  }, []);
+    const loadUsername = async () => {
+        try {
+            const response = await fetchUsername();
+            setUsername(response.data.username);
+        } catch (error) {
+            console.error('Failed to fetch username:', error);
+            setUsername(null);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  // Helper function to fetch user info
-  const fetchUserInfo = async () => {
-    //try {
-      const response = await fetch('/user-info', { ///api or user-info?
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        console.error('Failed to fetch user information. Status:', response.status);
-        return;
-      }
-
-      const data = await response.json();
-      if (data.username) {
-        setUsername(data.username);
-        setNewUsername(data.username); // Pre-fill the input field with current username
-      } else {
-        console.warn('Response received, but "username" field was not found.');
-      }
-    //} 
-    // catch (error) {
-    //   console.error('Error fetching user information:', error);
-    //   alert('Failed to fetch user information.');
-    //}
-  };
+    loadUsername();
+}, []);
 
   // Handle username form submission
   const handleUsernameChange = async (e: React.FormEvent) => {
@@ -77,6 +64,7 @@ export default function UserInfoPage() {
 
       // If successful, update local state
       setUsername(newUsername);
+      //db.session.commit();
       alert('Username updated successfully.');
     } catch (error) {
       console.error('An error occurred while updating username:', error);
@@ -251,6 +239,7 @@ export default function UserInfoPage() {
             {/* Main Content */}
             <main className="flex-1 p-8">
             <h1 className="text-3xl font-bold mb-6">Your Profile</h1>
+            <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer"></Link>
             <p className="mb-4">
                 Welcome, <strong>{username}</strong>.
             </p>
