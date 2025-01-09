@@ -73,8 +73,8 @@ export const getRecommendation = (userInput: string) =>
         withCredentials: true,
     });
 
-    export const fetchUsername = () =>
-        axios.get(`${API_URL}/get_username`, { withCredentials: true });
+export const fetchUsername = () =>
+    axios.get(`${API_URL}/get_username`, { withCredentials: true });
     
 
 
