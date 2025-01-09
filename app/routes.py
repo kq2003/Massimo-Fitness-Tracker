@@ -665,8 +665,19 @@ def generate_workout_plan():
                     break
 
             if valid:
+                progress = UserWorkoutProgress.query.filter_by(user_id=current_user.id).first()
+                if progress:
+                    progress.generation_date = datetime.utcnow().date()
+                else:
+                    print("bro")
+                    progress = UserWorkoutProgress(
+                        user_id=current_user.id,
+                        generation_date=datetime.utcnow().date()
+                    )
+                    db.session.add(progress)
+                db.session.commit()
                 return jsonify({'plan': workout_plan_json}), 200
-
+            
         except json.JSONDecodeError:
             # Regenerate if JSON is invalid
             print("Invalid JSON response. Regenerating...")
@@ -674,6 +685,7 @@ def generate_workout_plan():
         except Exception as e:
             print(f"Error during plan generation: {e}")
             return jsonify({'error': str(e)}), 500
+        
 
 
 # @main.route('/remove_workout_plan', methods=['DELETE'])
