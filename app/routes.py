@@ -344,7 +344,49 @@ def recommendation():
         return jsonify({"error": str(e)}), 500
 
 
+@main.route('/user-info', methods=["GET", "POST"])
+@use_cors()
+@login_required
+def user_info():
+    if request.method == 'GET':
+        return jsonify(current_user), 200
 
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            new_username = data.get('username')
+
+            if not new_username:
+                return jsonify({"success": False, "error": "No username provided"}), 400
+
+            current_user.username = new_username
+            db.session.commit()
+            return jsonify({"success": True, "username": new_username}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"success": False, "error": str(e)}), 500
+
+
+@main.route('/update-email', methods=['POST', 'GET'])
+@use_cors()
+@login_required
+def update_email():
+    """
+    Updates the current user's email (or other user fields)
+    according to the JSON payload.
+    """
+    try:
+        data = request.get_json()
+        new_email = data['email']
+        if 'email' in data:
+            current_user.email = new_email
+        if not new_email:
+            return jsonify({"success": False, "error": "No email provided"}), 400
+        db.session.commit()
+        return jsonify({"success": True, "new_email": new_email}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/workout_plan', methods=['POST'])
 @use_cors()
