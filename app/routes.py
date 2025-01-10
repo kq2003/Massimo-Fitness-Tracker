@@ -518,19 +518,22 @@ def get_current_day():
 def favicon():
     return '', 204  # Respond with "No Content" for favicon requests
 
+
 @main.route('/generate_workout_plan', methods=['POST'])
 @use_cors()
 @login_required
 def generate_workout_plan():
+    import json
+
     data = request.get_json()
     core_lifts = data.get('core_lifts')
 
     if not core_lifts:
         return jsonify({'error': 'Core lifts data is required'}), 400
 
-    # Updated prompt with clearer instructions and expected format
+    # Updated prompt with a specific example
     prompt = f"""
-    You are a personal fitness assistant. Generate a comprehensive 3-day Pull-Push-Leg workout split based on the following core lifts （1RM):
+    You are a personal fitness assistant. Generate a comprehensive 3-day Pull-Push-Leg workout split based on the following core lifts (1RM):
 
     - Bench Press: {core_lifts['bench']} kg
     - Pull-Ups: {core_lifts['pullUps']} reps
@@ -539,84 +542,111 @@ def generate_workout_plan():
     - Shoulder Press: {core_lifts['shoulderPress']} kg
 
     Guidelines:
-    1. Each day should follow the Pull-Push-Leg split. Generate at least 5 workouts for each day.
-    2. Include multiple exercises for each category: primary, secondary, and accessory.
-    3. Ensure all exercises have appropriate sets, reps, and weights.
-    4. Represent weights as numerical values in kilograms (e.g., 70.0).
-    5. Include consistent fields: "exercise_name", "sets", "reps", "weight", "rest_time", and "effort_level" for each workout.
-    6. Format the response as a valid JSON array enclosed within triple backticks and specify the language as JSON.
-    7. For body weight exercises, such as pull ups, set weight as 0.
-    8. Give reasonable value for the weights. For instance, if the inputted 1rm for bench press is 120kg, 5 sets of 5 reps with 100kg is reasonable; with 70kg isn't.
+    1. Each day must include at least 5 exercises. Ensure a variety of primary, secondary, and accessory exercises.
+    2. Provide appropriate sets, reps, weights, rest times, and effort levels for each exercise.
+    3. Use numerical values for weights in kilograms (e.g., 70.0). For bodyweight exercises like pull-ups, set weight to 0.
+    4. Respond with valid JSON. Do not include any additional text, comments, or formatting.
 
-    Example Format:
+    Example Output:
 
+    Input:
+    - Bench Press: 110 kg
+    - Pull-Ups: 20 reps
+    - Deadlift: 180 kg
+    - Back Squat: 110 kg
+    - Shoulder Press: 35 kg each side
 
+    Output:
+    ```json
     [
-        {{
-            "day": "push",
-            "workouts": [
-                {{
-                    "exercise_name": "Bench Press",
-                    "sets": 4,
-                    "reps": 8,
-                    "weight": 70.0,
-                    "rest_time": 120,
-                    "effort_level": 7
-                }},
-                {{
-                    "exercise_name": "Incline Dumbbell Press",
-                    "sets": 3,
-                    "reps": 10,
-                    "weight": 35.0,
-                    "rest_time": 90,
-                    "effort_level": 6
-                }}
-                                {{
-                    "exercise_name": "Tricep Push Down",
-                    "sets": 4,
-                    "reps": 8,
-                    "weight": 10.0,
-                    "rest_time": 90,
-                    "effort_level": 6
-                }}
-                                {{
-                    "exercise_name": "Dips",
-                    "sets": 3,
-                    "reps": 10,
-                    "weight": 0.0,
-                    "rest_time": 90,
-                    "effort_level": 6
-                }}
-                                {{
-                    "exercise_name": "Machine Pec Flies",
-                    "sets": 3,
-                    "reps": 10,
-                    "weight": 60.0,
-                    "rest_time": 90,
-                    "effort_level": 6
-                }}
-            ]
-        }},
         {{
             "day": "pull",
             "workouts": [
                 {{
                     "exercise_name": "Deadlift",
                     "sets": 4,
-                    "reps": 6,
-                    "weight": 100.0,
+                    "reps": 5,
+                    "weight": 160.0,
                     "rest_time": 180,
                     "effort_level": 8
                 }},
                 {{
-                    "exercise_name": "Pull Up",
+                    "exercise_name": "Pull-Ups",
+                    "sets": 4,
+                    "reps": 10,
+                    "weight": 10.0,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Barbell Row",
+                    "sets": 4,
+                    "reps": 8,
+                    "weight": 90.0,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Face Pulls",
                     "sets": 3,
                     "reps": 12,
-                    "weight": 0.0,
-                    "rest_time": 60,
-                    "effort_level": 8
+                    "weight": 25.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }},
+                {{
+                    "exercise_name": "Dumbbell Curls",
+                    "sets": 3,
+                    "reps": 10,
+                    "weight": 15.0,
+                    "rest_time": 90,
+                    "effort_level": 6
                 }}
-
+            ]
+        }},
+        {{
+            "day": "push",
+            "workouts": [
+                {{
+                    "exercise_name": "Bench Press",
+                    "sets": 4,
+                    "reps": 6,
+                    "weight": 95.0,
+                    "rest_time": 180,
+                    "effort_level": 8
+                }},
+                {{
+                    "exercise_name": "Incline Dumbbell Press",
+                    "sets": 4,
+                    "reps": 8,
+                    "weight": 32.5,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Overhead Shoulder Press",
+                    "sets": 4,
+                    "reps": 8,
+                    "weight": 30.0,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Lateral Raises",
+                    "sets": 3,
+                    "reps": 12,
+                    "weight": 10.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }},
+                {{
+                    "exercise_name": "Tricep Pushdowns",
+                    "sets": 4,
+                    "reps": 10,
+                    "weight": 25.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }}
             ]
         }},
         {{
@@ -625,90 +655,135 @@ def generate_workout_plan():
                 {{
                     "exercise_name": "Back Squat",
                     "sets": 4,
+                    "reps": 6,
+                    "weight": 100.0,
+                    "rest_time": 180,
+                    "effort_level": 8
+                }},
+                {{
+                    "exercise_name": "Romanian Deadlifts",
+                    "sets": 4,
                     "reps": 8,
-                    "weight": 80.0,
+                    "weight": 90.0,
                     "rest_time": 120,
                     "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Leg Press",
+                    "sets": 4,
+                    "reps": 10,
+                    "weight": 200.0,
+                    "rest_time": 120,
+                    "effort_level": 7
+                }},
+                {{
+                    "exercise_name": "Walking Lunges",
+                    "sets": 3,
+                    "reps": 12,
+                    "weight": 20.0,
+                    "rest_time": 90,
+                    "effort_level": 6
+                }},
+                {{
+                    "exercise_name": "Calf Raises",
+                    "sets": 4,
+                    "reps": 15,
+                    "weight": 60.0,
+                    "rest_time": 60,
+                    "effort_level": 6
                 }}
             ]
         }}
     ]
-    
-
-    Ensure that the JSON is properly formatted and can be parsed without errors.
+    ```
+    Ensure the response is valid JSON and follows the example format.
     """
 
-    try:
-        # Initialize the LLM with your API key and desired model
-        llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
-        messages = [
-            ChatMessage(role=MessageRole.SYSTEM, content="You are a personal fitness assistant."),
-            ChatMessage(role=MessageRole.USER, content=prompt)
-        ]
-        response = llm.chat(messages)
-        workout_plan = response.message.content
-
-        # Extract JSON from the response
+    while True:
         try:
-            # Remove any code block formatting if present
+            # Initialize LLM
+            llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo")
+            messages = [
+                ChatMessage(role=MessageRole.SYSTEM, content="You are a personal fitness assistant."),
+                ChatMessage(role=MessageRole.USER, content=prompt)
+            ]
+            response = llm.chat(messages)
+            workout_plan = response.message.content
+
+            # Parse the JSON response
             if workout_plan.startswith("```") and workout_plan.endswith("```"):
                 workout_plan = "\n".join(workout_plan.split("\n")[1:-1])
+
             workout_plan_json = json.loads(workout_plan)
-            print("Workout Plan JSON:", workout_plan_json)
-        except json.JSONDecodeError as e:
-            print("JSON Decode Error:", e)
-            return jsonify({'error': 'Invalid response format from GPT. Please try again.'}), 500
 
-        # Optional: Further validation to ensure structure matches expectations
-        if not isinstance(workout_plan_json, list):
-            return jsonify({'error': 'Workout plan should be a list of days.'}), 500
+            # Validate the plan
+            valid = True
+            for day in workout_plan_json:
+                if len(day.get("workouts", [])) < 5:
+                    valid = False
+                    break
 
-        for day in workout_plan_json:
-            if not all(k in day for k in ("day", "workouts")):
-                return jsonify({'error': 'Each day should have "day" and "workouts" keys.'}), 500
-            if not isinstance(day["workouts"], list):
-                return jsonify({'error': '"workouts" should be a list.'}), 500
-            for workout in day["workouts"]:
-                required_keys = ["exercise_name", "sets", "reps", "weight", "rest_time", "effort_level"]
-                if not all(k in workout for k in required_keys):
-                    return jsonify({'error': f'Each workout should have keys: {required_keys}.'}), 500
+            if valid:
+                progress = UserWorkoutProgress.query.filter_by(user_id=current_user.id).first()
+                if progress:
+                    progress.generation_date = datetime.utcnow().date()
+                else:
+                    print("bro")
+                    progress = UserWorkoutProgress(
+                        user_id=current_user.id,
+                        generation_date=datetime.utcnow().date()
+                    )
+                    db.session.add(progress)
+                db.session.commit()
+                return jsonify({'plan': workout_plan_json}), 200
+            
+        except json.JSONDecodeError:
+            # Regenerate if JSON is invalid
+            print("Invalid JSON response. Regenerating...")
 
-        # === Added Functionalities Start ===
+        except Exception as e:
+            print(f"Error during plan generation: {e}")
+            return jsonify({'error': str(e)}), 500
+        
 
-        # 1. Delete existing workout plans for the user
+
+# @main.route('/remove_workout_plan', methods=['DELETE'])
+# @use_cors()
+# @login_required
+# def remove_workout_plan():
+#     try:
+#         from app.models import WorkoutPlan
+#         # Remove the workout plan for the current user
+#         WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
+
+#         # Commit the changes
+#         from app import db
+#         db.session.commit()
+
+#         return jsonify({'message': 'Workout plan removed successfully'}), 200
+#     except Exception as e:
+#         print(f"Error removing workout plan: {e}")
+#         return jsonify({'error': 'Failed to remove workout plan'}), 500
+
+@main.route('/remove_workout_plan', methods=['DELETE'])
+@use_cors()
+@login_required
+def remove_workout_plan():
+    try:
+        from app.models import WorkoutPlan, UserWorkoutProgress
+        from app import db
+
+        # Remove all workout plans for the current user
         WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
 
-        # 2. Save the new workout plan to the database
-        for day in workout_plan_json:
-            day_name = day['day'].lower()
-            for workout in day['workouts']:
-                new_plan = WorkoutPlan(
-                    user_id=current_user.id,
-                    day=day_name,
-                    exercise_name=workout['exercise_name'],
-                    sets=workout['sets'],
-                    reps=workout['reps'],
-                    weight=workout['weight'],
-                    rest_time=workout['rest_time'],
-                    effort_level=workout['effort_level']
-                )
-                db.session.add(new_plan)
+        # Remove the user's workout progress
+        UserWorkoutProgress.query.filter_by(user_id=current_user.id).delete()
 
-        # 3. Update or create UserWorkoutProgress with the current generation date
-        progress = UserWorkoutProgress.query.filter_by(user_id=current_user.id).first()
-        if progress:
-            progress.generation_date = datetime.utcnow().date()
-        else:
-            progress = UserWorkoutProgress(
-                user_id=current_user.id,
-                generation_date=datetime.utcnow().date()
-            )
-            db.session.add(progress)
-
+        # Commit the changes to the database
         db.session.commit()
-        # === Added Functionalities End ===
 
-        return jsonify({'plan': workout_plan_json}), 200
+        return jsonify({'message': 'Workout plan and progress removed successfully.'}), 200
     except Exception as e:
-        print("Error in generate_workout_plan:", e)
-        return jsonify({'error': str(e)}), 500
+        print(f"Error removing workout plan: {e}")
+        return jsonify({'error': 'Failed to remove workout plan'}), 500
+

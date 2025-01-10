@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'https://rocky-island-92759-454647932385.herokuapp.com';
+// const API_URL = 'https://rocky-island-92759-454647932385.herokuapp.com';
+
+const API_URL = 'http://127.0.0.1:5000';
 
 // User authentication
 export const registerUser = (registerData: object) =>
@@ -71,8 +73,8 @@ export const getRecommendation = (userInput: string) =>
         withCredentials: true,
     });
 
-    export const fetchUsername = () =>
-        axios.get(`${API_URL}/get_username`, { withCredentials: true });
+export const fetchUsername = () =>
+    axios.get(`${API_URL}/get_username`, { withCredentials: true });
     
 
 
@@ -116,3 +118,10 @@ export const updateCurrentDay = (currentDay: number) =>
 export const generateWorkoutPlan = (coreLifts: object) =>
     axios.post(`${API_URL}/generate_workout_plan`, { core_lifts: coreLifts }, { withCredentials: true });
 
+
+export const removeWorkoutPlan = async (): Promise<void> => {
+    const response = await axios.delete(`${API_URL}/remove_workout_plan`, { withCredentials: true });
+    if (response.status !== 200) {
+        throw new Error('Failed to remove workout plan');
+    }
+};

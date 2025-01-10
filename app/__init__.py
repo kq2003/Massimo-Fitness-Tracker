@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_session import Session
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -37,17 +38,7 @@ def create_app():
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True  # Use HTTPS in production
-
-    app.config['SESSION_PERMANENT'] = True
-    #app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-
-    # ###for local only
-    # app.config['SECRET_KEY'] = 'your_secret_key'
-    # app.config['SESSION_COOKIE_SECURE'] = False
-    # app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    # app.config['REMEMBER_COOKIE_SECURE'] = False
-    # app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
-
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1) 
     Session(app)
 
     # Register blueprints
