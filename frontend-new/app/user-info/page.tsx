@@ -18,7 +18,7 @@ import { Home, User2, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchUsername } from '@/services/api'; // API call to fetch username
+import { fetchUsername, updateUsername } from '@/services/api'; // API call to fetch username
 
 export default function UserInfoPage() {
   const router = useRouter();
@@ -43,38 +43,29 @@ export default function UserInfoPage() {
     loadUsername();
 }, []);
 
-  // Handle username form submission
-  const handleUsernameChange = async (e: React.FormEvent) => {
+const handleUsernameChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
-      const response = await fetch('/user-info', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ username: newUsername }),
-      });
-
-      if (!response.ok) {
-        console.error('Failed to update username. Status:', response.status);
-        alert('Failed to update username.');
-        return;
+      // Call the API to update the username
+      const response = await updateUsername({ username: newUsername });
+  
+      if (response.data.success) {
+        setUsername(response.data.username);
+        alert('Username updated successfully.');
+      } else {
+        console.error('Failed to update username:', response.data.error);
+        alert(`Failed to update username: ${response.data.error}`);
       }
-
-      // If successful, update local state
-      setUsername(newUsername);
-      //db.session.commit();
-      alert('Username updated successfully.');
     } catch (error) {
       console.error('An error occurred while updating username:', error);
-      alert('An error occurred.');
+      alert('An error occurred while updating username.');
     } finally {
       setLoading(false);
       setNewUsername(''); // Clear input after update
     }
   };
-
 
   function UpdateEmailForm() {
     const [newEmail, setNewEmail] = useState('');

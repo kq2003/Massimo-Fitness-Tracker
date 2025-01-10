@@ -23,6 +23,9 @@ export const logoutUser = () =>
 export const updateUser = (userData: { avatar?: string; username?: string }) =>
     axios.post(`${API_URL}/update_user`, userData, { withCredentials: true });
 
+export const updateUsername = (userData: {username?: string }) =>
+    axios.post(`${API_URL}/update_username`, userData, { withCredentials: true });
+
 // Workout data
 export const addAerobicWorkout = (workoutData: object) =>
     axios.post(`${API_URL}/add_aerobic`, workoutData, { withCredentials: true });

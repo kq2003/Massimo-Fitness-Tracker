@@ -344,27 +344,23 @@ def recommendation():
         return jsonify({"error": str(e)}), 500
 
 
-@main.route('/user-info', methods=["GET", "POST"])
+@main.route('/update_username', methods=["POST"])
 @use_cors()
 @login_required
-def user_info():
-    if request.method == 'GET':
-        return jsonify(current_user), 200
+def update_username():
+    try:
+        data = request.get_json()
+        new_username = data.get('username')
 
-    if request.method == 'POST':
-        try:
-            data = request.get_json()
-            new_username = data.get('username')
+        if not new_username:
+            return jsonify({"success": False, "error": "No username provided"}), 400
 
-            if not new_username:
-                return jsonify({"success": False, "error": "No username provided"}), 400
-
-            current_user.username = new_username
-            db.session.commit()
-            return jsonify({"success": True, "username": new_username}), 200
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"success": False, "error": str(e)}), 500
+        current_user.username = new_username
+        db.session.commit()
+        return jsonify({"success": True, "username": new_username}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @main.route('/update-email', methods=['POST', 'GET'])
