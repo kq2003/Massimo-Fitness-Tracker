@@ -394,9 +394,10 @@ def save_workout_plan():
     if not plan:
         return jsonify({'error': 'Workout plan is required'}), 400
 
-    # Delete old plan
     from app.models import WorkoutPlan
-    WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
+    existing_plan = WorkoutPlan.query.filter_by(user_id=current_user.id).first()
+    if existing_plan:
+        return jsonify({'message': 'Workout plan already exists'}), 200
 
     # Save new plan
     from app import db

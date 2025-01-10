@@ -171,7 +171,7 @@ const handleUsernameChange = async (e: React.FormEvent) => {
 
   // Define your sidebar menu items
   const menuItems = [
-    { title: 'Home', icon: Home, url: '/menu' },
+    { title: 'Home', icon: Home, url: '/' },
     { title: 'Profile', icon: User2, url: '/user-info' },
     { title: 'Settings', icon: Settings, url: '/settings' },
   ];
