@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify, make_response, redirect, url_for
+from flask import Blueprint, request, jsonify, make_response, redirect, url_for, session
 from flask_login import login_required, current_user, login_user, logout_user
-from app.models import User, Location, UserWorkoutProgress, WorkoutPlan
+from app.models import User, Location, UserWorkoutProgress, WorkoutPlan, ActiveSessions
 from app.custom_cors import use_cors
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
@@ -16,6 +16,7 @@ from llama_index.core.llms import ChatMessage, MessageRole
 from config import Config
 import json
 import os
+import uuid
 
 
 main = Blueprint('main', __name__)
@@ -63,8 +64,17 @@ def login():
     data = request.get_json()
     identifier = data['email']  # Can be either email or username
     user = User.query.filter(or_(User.email == identifier, User.username == identifier)).first()
-
     if user and bcrypt.check_password_hash(user.password, data['password']):
+        session_token = str(uuid.uuid4())
+        existing_session = db.session.query(ActiveSessions).filter_by(user_id = user.id).first()
+        if existing_session:
+            existing_session.token = session_token
+            existing_session.created_at = datetime.utcnow()
+        else:
+            new_session = ActiveSessions(user_id=user.id, token=session_token)
+            db.session.add(new_session)
+        db.session.commit()
+
         login_user(user)
         response = make_response(jsonify({
             'message': 'Logged in successfully',
@@ -73,6 +83,13 @@ def login():
             'username': user.username,
             'avatar': user.avatar
         }), 200)
+        response.set_cookie(
+            "session_token",
+            session_token,
+            httponly=True, 
+            secure=True, 
+            samesite='None' 
+        )
         return response
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
@@ -327,7 +344,45 @@ def recommendation():
         return jsonify({"error": str(e)}), 500
 
 
+@main.route('/update_username', methods=["POST"])
+@use_cors()
+@login_required
+def update_username():
+    try:
+        data = request.get_json()
+        new_username = data.get('username')
 
+        if not new_username:
+            return jsonify({"success": False, "error": "No username provided"}), 400
+
+        current_user.username = new_username
+        db.session.commit()
+        return jsonify({"success": True, "username": new_username}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@main.route('/update-email', methods=['POST', 'GET'])
+@use_cors()
+@login_required
+def update_email():
+    """
+    Updates the current user's email (or other user fields)
+    according to the JSON payload.
+    """
+    try:
+        data = request.get_json()
+        new_email = data['email']
+        if 'email' in data:
+            current_user.email = new_email
+        if not new_email:
+            return jsonify({"success": False, "error": "No email provided"}), 400
+        db.session.commit()
+        return jsonify({"success": True, "new_email": new_email}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/workout_plan', methods=['POST'])
 @use_cors()

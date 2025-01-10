@@ -30,6 +30,8 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     Migrate(app, db)
+
+    #for local, switch back later
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": r"https://.*\.vercel\.app"}})
 
     
