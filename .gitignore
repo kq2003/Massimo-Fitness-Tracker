@@ -2,4 +2,6 @@
 venv/
 node_modules
 config.py
+__pycache__/
+*.pyc
 

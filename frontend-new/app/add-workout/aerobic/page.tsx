@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { addAerobicWorkout } from "@/services/api";  // Import your addAerobicWorkout API method
+import AuthenticatedPage from "@/components/AuthenticatedPage";
 
 // Predefined aerobic exercises
 const aerobicExercises = [
@@ -75,10 +76,11 @@ export default function AerobicPage() {
   };
 
   const handleGoHome = () => {
-    router.push('/menu');  // Navigate to the home page
+    router.push('/');  // Navigate to the home page
   };
 
   return (
+    <AuthenticatedPage>
     <SidebarProvider>
       <div className="flex h-screen">
         {/* Sidebar */}
@@ -188,6 +190,7 @@ export default function AerobicPage() {
         </div>
       </div>
     </SidebarProvider>
+    </AuthenticatedPage>
   );
 }
 
