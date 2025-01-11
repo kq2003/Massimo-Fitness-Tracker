@@ -26,6 +26,20 @@ export const updateUser = (userData: { avatar?: string; username?: string }) =>
 export const updateUsername = (userData: {username?: string }) =>
     axios.post(`${API_URL}/update_username`, userData, { withCredentials: true });
 
+export const updatePassword = (userData: {password?: string }) =>
+    axios.post(`${API_URL}/update_password`, userData, { withCredentials: true });
+
+// //Initiates an email update request (e.g., sends a verification email or does other checks).
+// export const requestEmailUpdate = (userData: { email?: string }) =>
+//     axios.post(`${API_URL}/request_email_update`, userData, {withCredentials: true,});
+  
+// // Finalizes the email update, typically after the request has been confirmed.
+// export const updateEmail = (userData: { email?: string }) =>
+//     axios.post(`${API_URL}/update_email`, userData, {withCredentials: true,});
+
+export const updateLocationConsent = (userData: { consent?: boolean }) =>
+    axios.post(`${API_URL}/update_location_consent`, userData, {withCredentials: true,});
+
 // Workout data
 export const addAerobicWorkout = (workoutData: object) =>
     axios.post(`${API_URL}/add_aerobic`, workoutData, { withCredentials: true });
@@ -63,9 +77,6 @@ export const getWorkoutFeedback = () =>
     axios.get(`${API_URL}/workout_feedback`, { withCredentials: true });
 
 // Location management
-export const updateLocationConsent = (consent: boolean) =>
-    axios.post(`${API_URL}/update_location_consent`, { consent }, { withCredentials: true });
-
 export const updateLocation = (locationData: { latitude: number; longitude: number }) =>
     axios.post(`${API_URL}/update_location`, locationData, { withCredentials: true });
 

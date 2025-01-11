@@ -90,5 +90,3 @@ class ActiveSessions(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     token = db.Column(db.String(128), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-

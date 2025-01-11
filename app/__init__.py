@@ -8,6 +8,8 @@ from flask_cors import CORS
 from flask_session import Session
 from dotenv import load_dotenv
 from datetime import timedelta
+from flask_mail import Mail, Message
+import os 
 
 load_dotenv()
 
@@ -39,11 +41,21 @@ def create_app():
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True  # Use HTTPS in production
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1) 
+
+    # Configure mail settings
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
     Session(app)
 
     # Register blueprints
     from app.routes import main
     app.register_blueprint(main)
+
+    #Initialize Flask-Mail
+    #mail = Mail(app)
 
     return app
 

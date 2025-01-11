@@ -18,13 +18,14 @@ import { Home, User2, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchUsername, updateUsername } from '@/services/api'; // API call to fetch username
+import { fetchUsername, updateLocationConsent, updateUsername, updatePassword } from '@/services/api'; // API call to fetch username
 
 export default function UserInfoPage() {
   const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState('');
   const [loading, setLoading] = useState(false);
+  
 
   // Fetch current user info on mount
   useEffect(() => {
@@ -39,7 +40,6 @@ export default function UserInfoPage() {
             setLoading(false);
         }
     };
-
     loadUsername();
 }, []);
 
@@ -67,83 +67,62 @@ const handleUsernameChange = async (e: React.FormEvent) => {
     }
   };
 
-  function UpdateEmailForm() {
-    const [newEmail, setNewEmail] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordLoading(true);
   
-    // Function to handle form submission
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault(); // Prevent page refresh
-      setIsLoading(true);
-      setMessage(null); // Clear previous messages
-  
-      try {
-        const response = await fetch('/update-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email: newEmail }),
-        });
-  
-        if (!response.ok) {
-          const errorData = await response.json();
-          setMessage({ type: 'error', text: `Failed to update email: ${errorData.error || 'Unknown error'}` });
-          console.error('Failed to update email. Status:', response.status);
-          return;
-        }
-  
-        const data = await response.json();
-        if (data.success) {
-          setMessage({ type: 'success', text: `Email updated to: ${data.new_email || data.newEmail}` });
-        } else {
-          setMessage({ type: 'error', text: `Update failed: ${data.error || 'Unknown error'}` });
-        }
-      } catch (error) {
-        console.error('Error while updating email:', error);
-        setMessage({ type: 'error', text: 'An error occurred while updating the email.' });
-      } finally {
-        setIsLoading(false);
-        setNewEmail(''); // Clear the input if desired
+    try {
+      // Call the API to update the username
+      const response = await updatePassword({ password: newPassword });
+      if (response.data.success) {
+        setNewPassword(response.data.password);
+        alert('Password updated successfully.');
+      } else {
+        console.error('Failed to update password:', response.data.error);
+        alert(`Failed to update password: ${response.data.error}`);
       }
-    };
+    } catch (error) {
+      console.error('An error occurred while updating password:', error);
+      alert('An error occurred while updating password.');
+    } finally {
+      setPasswordLoading(false);
+      setNewPassword(''); // Clear input after update
+    }
+  };
+
+
+
+
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationConsent, setLocationConsent] = useState<boolean>(false);
+  const handleLocationConsent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const updatedConsent = !locationConsent;
+    setLocationConsent(updatedConsent);
+    setLocationLoading(true);
   
-    // Return the email update form with status message
-    return (
-      <div className="mb-6">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email" className="block mb-2 font-semibold">
-            Change Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            className="border rounded p-2 w-full mb-4"
-            placeholder="Enter new email"
-            required
-          />
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Updating...' : 'Update Email'}
-          </button>
-        </form>
-  
-        {/* Display success or error message */}
-        {message && (
-          <p
-            className={`mt-4 ${message.type === 'success' ? 'text-green-600' : 'text-red-600'} font-semibold`}
-          >
-            {message.text}
-          </p>
-        )}
-      </div>
-    );
-  }
+    try {
+      console.log('Sending consent:', updatedConsent);
+      const response = await updateLocationConsent({ consent: updatedConsent });
+      if (response.data.success) {
+        console.log('Response data:', response.data);
+        setLocationConsent(response.data.location_consent);
+        alert('Location consent updated successfully.');
+      } else {
+        console.error('Failed to update location consent:', response.data.error);
+        alert(`Failed to update location consent: ${response.data.error}`);
+      }
+    } catch (error) {
+      console.error('An error occurred while updating location consent:', error);
+      alert('An error occurred while updating location consent.');
+    } finally {
+      setLocationLoading(false);
+    }
+  };
   
   
 
@@ -258,8 +237,41 @@ const handleUsernameChange = async (e: React.FormEvent) => {
                 </button>
             </form>
 
-            {/* --- New Email Form --- */}
-            <UpdateEmailForm />
+            <form onSubmit={handlePasswordChange} className="mb-6">
+                <label htmlFor="password" className="block mb-2 font-semibold">
+                Change Password
+                </label>
+                <input
+                id="password"
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="border rounded p-2 w-full mb-4"
+                placeholder="Enter new password"
+                required
+                />
+                <button
+                type="submit"
+                className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+                disabled={loading}
+                >
+                {passwordLoading ? 'Updating...' : 'Update Password'}
+                </button>
+            </form>
+
+
+            <label>
+            <input
+              type="checkbox"
+              checked={locationConsent}
+              onChange={handleLocationConsent}
+              disabled={loading}
+            />
+            Allow location tracking
+          </label>
+
+
+
             </main>
       </div>
     </SidebarProvider>

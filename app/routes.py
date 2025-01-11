@@ -17,6 +17,9 @@ from config import Config
 import json
 import os
 import uuid
+import random
+import string
+
 
 
 main = Blueprint('main', __name__)
@@ -297,15 +300,15 @@ def all_workouts():
     workouts = get_all_workouts(current_user.id)
     return jsonify(workouts), 200
 
-@main.route('/update_location_consent', methods=['POST'])
-@use_cors()
-@login_required
-def update_location_consent():
-    data = request.get_json()
-    current_user.location_consent = data.get('consent')
-    from app import db #TODO Alex: is this valid? Should I implement another layer at service?
-    db.session.commit()
-    return jsonify({'message': 'Location consent updated'}), 200
+# @main.route('/update_location_consent', methods=['POST'])
+# @use_cors()
+# @login_required
+# def update_location_consent():
+#     data = request.get_json()
+#     current_user.location_consent = data.get('consent')
+#     from app import db #TODO Alex: is this valid? Should I implement another layer at service?
+#     db.session.commit()
+#     return jsonify({'message': 'Location consent updated'}), 200
 
 
 @main.route('/update_location', methods=['POST'])
@@ -363,26 +366,69 @@ def update_username():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-@main.route('/update-email', methods=['POST', 'GET'])
+# @main.route('/update_email', methods=['POST', 'GET'])
+# @use_cors()
+# @login_required
+# def update_email():
+#     try:
+#         data = request.get_json()
+#         new_email = data.get('email')
+#         if not new_email:
+#             return jsonify({"success": False, "error": "No email provided"}), 400
+#         current_user.email = new_email
+#         db.session.commit()
+#         return jsonify({"success": True, "email": new_email}), 200
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@main.route('/update_password', methods=['POST', 'GET'])
 @use_cors()
 @login_required
 def update_email():
-    """
-    Updates the current user's email (or other user fields)
-    according to the JSON payload.
-    """
     try:
         data = request.get_json()
-        new_email = data['email']
-        if 'email' in data:
-            current_user.email = new_email
-        if not new_email:
-            return jsonify({"success": False, "error": "No email provided"}), 400
+        new_password = data.get('password')
+        if not new_password:
+            return jsonify({"success": False, "error": "No password provided"}), 400
+        current_user.password = new_password
         db.session.commit()
-        return jsonify({"success": True, "new_email": new_email}), 200
+        return jsonify({"success": True, "password": new_password}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+
+@main.route('/update_location_consent', methods=['POST'])
+@use_cors()
+@login_required
+def update_location_consent():
+    try:
+        data = request.get_json()
+        print(data)
+        location_consent = data.get('consent')
+        current_user.location_consent = location_consent
+        db.session.commit()
+        return jsonify({"success": True, "location_consent": location_consent}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+def send_email(recipient, verification_code):
+    msg = Message(
+        "Your Verification Code",
+        sender=os.environ.get('MAIL_USERNAME'),
+        recipients=[recipient]
+    )
+    msg.body = f"Your verification code is {verification_code}"
+    msg.html = f"<p>Your verification code is <strong>{verification_code}</strong></p>"
+
+    mail.send(msg)
+    return "Email sent successfully!"
+
 
 @main.route('/workout_plan', methods=['POST'])
 @use_cors()
