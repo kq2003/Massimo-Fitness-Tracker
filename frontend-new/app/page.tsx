@@ -1,21 +1,3 @@
-// 'use client';
-// import { useRouter } from 'next/navigation';
-// import { useEffect } from 'react';
-
-// export default function HomePage() {
-//     const router = useRouter();
-
-//     useEffect(() => {
-//         router.push('/auth'); // Redirect to /auth
-//     }, [router]);
-
-//     return (
-//         <div className="flex items-center justify-center h-screen">
-//             <h1 className="text-2xl font-semibold">Redirecting to Login...</h1>
-//         </div>
-//     );
-// }
-
 "use client";
 
 // import RecommendationAgent from '@/components/RecommendationAgent';
@@ -60,13 +42,17 @@ export default function MenuPage() {
             <main className="flex-1 flex items-center justify-between">
                 <div className="flex flex-col items-start text-left max-w-lg">
                     <h1 className="text-5xl font-extrabold mb-6 text-gray-800">
-                        Start your journey with us.
+                        Light Weight Baby.
                     </h1>
                     <p className="text-gray-600 text-lg mb-8">
                         {loading
                             ? "Loading your workout data..."
                             : workoutsExist
-                            ? `You are on ${currentDay} day of your workout plan!`
+                            ? (
+                                <>
+                                    You are on <span className="font-bold text-black-600">{currentDay}</span> day of your workout plan!
+                                </>
+                            )
                             : "Start by planning your workouts guided by AI assistant and pro expertise. You can change workout details anytime."
                         }
                     </p>
