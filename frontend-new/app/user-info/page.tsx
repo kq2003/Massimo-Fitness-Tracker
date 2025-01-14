@@ -174,6 +174,7 @@ const handleUsernameChange = async (e: React.FormEvent) => {
     { title: 'Home', icon: Home, url: '/' },
     { title: 'Profile', icon: User2, url: '/user-info' },
     { title: 'Settings', icon: Settings, url: '/settings' },
+    { title: 'Upload Avatar', icon: Settings, url: '/avatar-upload' },
   ];
 
   return (

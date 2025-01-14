@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 # Predefined origins list
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5000",
     "https://massimo-frontend-bl4mezr98-aos-projects-2be27b28.vercel.app",
     "https://massimo-frontend-4ot1an-aos-projects-2be27b28.vercel.app",
     "https://massimo-frontend-aos-projects-2be27b28.vercel.app",

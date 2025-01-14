@@ -124,6 +124,22 @@ export default function WorkoutPlanningPage() {
         }
     };
 
+    const startWorkout = async () => {
+        setSaving(true);
+        try {
+            await saveWorkoutPlan(workoutPlan);
+            // alert("Workout plan saved successfully!");
+            router.push('add-workout/strength');
+        } catch (error) {
+            console.error("Error saving workout plan:", error);
+            alert("Failed to save workout plan. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+
+
     const handleRemovePlan = async () => {
         if (!confirm("Are you sure you want to delete your workout plan?")) return;
 
@@ -206,13 +222,17 @@ export default function WorkoutPlanningPage() {
                                         ))}
                                     </div>
                                 ))}
-                                    <h1 className="text-2xl font-bold text-gray-800">
-                                            You can now start working out with this plan!
-                                    </h1>
+                                    {/* <h1 className="text-2xl font-bold text-gray-800">
+                                            You can now start working out with this plan from Add Workout/Strength above after clicking!
+                                    </h1> */}
                                 <div className="flex gap-4 mt-4">
-                                    <Button onClick={handleSavePlan} disabled={saving}>
+                                <Button onClick={handleSavePlan} disabled={saving}>
                                         {saving ? "Saving..." : "Save Workout Plan"}
                                     </Button>
+                                    <Button onClick={startWorkout} disabled={saving}>
+                                        {saving ? "Saving..." : "Start Workout"}
+                                    </Button>
+
                                     <Button
                                         onClick={handleRemovePlan}
                                         disabled={removing}
