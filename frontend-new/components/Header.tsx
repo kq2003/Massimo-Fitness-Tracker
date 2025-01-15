@@ -235,9 +235,9 @@ export default function Header() {
                         {loading ? 'Loading...' : username}
                     </span>
                 </Link>
-                <Button variant="default" onClick={handleLogout}>
+                {/* <Button variant="default" onClick={handleLogout}>
                     Logout
-                </Button>
+                </Button> */}
             </div>
         </header>
     );
