@@ -18,7 +18,8 @@ import { Home, User2, Settings, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchUsername, updateUsername } from '@/services/api'; // API call to fetch username
+import { fetchUsername, updateUsername, logoutUser } from '@/services/api'; // API call to fetch username
+import axios from 'axios';
 
 export default function UserInfoPage() {
   const router = useRouter();
@@ -65,6 +66,25 @@ const handleUsernameChange = async (e: React.FormEvent) => {
       setLoading(false);
       setNewUsername(''); // Clear input after update
     }
+  };
+
+    // Handle Logout
+    const handleLogout = async () => {
+      try {
+          console.log('Attempting to log out...');
+          const response = await logoutUser(); // Call logout API
+          console.log('Logout Response:', response.data); // Log successful response
+          alert('Logged out successfully!');
+          router.push('/auth'); // Redirect to login page
+      } catch (error) {
+          console.error('Logout Error:', error); // Log detailed error
+          if (axios.isAxiosError(error)) {
+              console.error('Axios Error Response:', error.response?.data); // Log backend error response
+              alert(error.response?.data?.message || 'Failed to log out. Please try again.');
+          } else {
+              alert('An unknown error occurred during logout.');
+          }
+      }
   };
 
   function UpdateEmailForm() {
@@ -145,35 +165,13 @@ const handleUsernameChange = async (e: React.FormEvent) => {
     );
   }
   
-  
-
-  // Handle user logout
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        console.error('Failed to log out. Status:', response.status);
-        alert('Failed to log out.');
-        return;
-      }
-
-      // If successful, redirect to auth page
-      router.push('/auth');
-    } catch (error) {
-      console.error('Error during logout:', error);
-      alert('Failed to log out.');
-    }
-  };
 
   // Define your sidebar menu items
   const menuItems = [
     { title: 'Home', icon: Home, url: '/' },
     { title: 'Profile', icon: User2, url: '/user-info' },
     { title: 'Settings', icon: Settings, url: '/settings' },
+    { title: 'Upload Avatar', icon: Settings, url: '/avatar-upload' },
   ];
 
   return (

@@ -128,3 +128,40 @@ export const removeWorkoutPlan = async (): Promise<void> => {
         throw new Error('Failed to remove workout plan');
     }
 };
+
+// Avatar Upload
+export const uploadAvatarToS3 = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.post(`${API_URL}/upload-avatar`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+    });
+
+    return response.data.url; // Returns the S3 URL of the uploaded avatar
+};
+
+
+export const fetchAvatar = async (): Promise<string | null> => {
+    try {
+        const response = await axios.get(`${API_URL}/get_avatar`, { withCredentials: true });
+        return response.data.avatar; // Return only the avatar URL
+    } catch (error) {
+        console.error('Error fetching avatar:', error);
+        throw error;
+    }
+};
+
+
+export const fetchConsent = async (): Promise<boolean> => {
+    try {
+        const response = await axios.get(`${API_URL}/get_consent`, { withCredentials: true });
+        return response.data.consent;
+    } catch (error) {
+        console.error('Error fetching location consent:', error);
+        throw error;
+    }
+}
