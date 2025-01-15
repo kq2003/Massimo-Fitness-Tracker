@@ -154,3 +154,14 @@ export const fetchAvatar = async (): Promise<string | null> => {
         throw error;
     }
 };
+
+
+export const fetchConsent = async (): Promise<boolean> => {
+    try {
+        const response = await axios.get(`${API_URL}/get_consent`, { withCredentials: true });
+        return response.data.consent;
+    } catch (error) {
+        console.error('Error fetching location consent:', error);
+        throw error;
+    }
+}

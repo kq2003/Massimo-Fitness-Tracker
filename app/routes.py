@@ -841,3 +841,12 @@ def upload_avatar():
     except Exception as e:
         print(f"Error uploading avatar: {e}")
         return jsonify({'error': 'Failed to upload avatar'}), 500
+    
+
+@main.route('/get_consent', methods=['GET'])
+@use_cors()
+@login_required
+def get_consent():
+    print(current_user.location_consent)
+    print(current_user.username)
+    return jsonify({'consent': current_user.location_consent}), 200

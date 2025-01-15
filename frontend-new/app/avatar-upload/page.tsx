@@ -93,6 +93,7 @@ export default function AvatarUploadPage() {
         try {
             const avatarUrl = await uploadAvatarToS3(file);
             alert(`Avatar uploaded successfully! URL: ${avatarUrl}`);
+            window.location.reload();
         } catch (error) {
             console.error('Error uploading avatar:', error);
             alert('Failed to upload avatar. Please try again.');
