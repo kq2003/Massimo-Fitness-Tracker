@@ -14,12 +14,16 @@ from datetime import datetime
 from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
 from config import Config
-import json
 import os
 import uuid
-import random
-import string
+import boto3
+from dotenv import load_dotenv
 
+load_dotenv()
+
+bucket_name = os.getenv('S3_BUCKET_NAME')
+access_key = os.getenv('S3_ACCESS_KEY')
+secret_key = os.getenv('S3_SECRET_KEY')
 
 
 main = Blueprint('main', __name__)
@@ -440,9 +444,10 @@ def save_workout_plan():
     if not plan:
         return jsonify({'error': 'Workout plan is required'}), 400
 
-    # Delete old plan
     from app.models import WorkoutPlan
-    WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
+    existing_plan = WorkoutPlan.query.filter_by(user_id=current_user.id).first()
+    if existing_plan:
+        return jsonify({'message': 'Workout plan already exists'}), 200
 
     # Save new plan
     from app import db
@@ -829,3 +834,62 @@ def remove_workout_plan():
         print(f"Error removing workout plan: {e}")
         return jsonify({'error': 'Failed to remove workout plan'}), 500
 
+@main.route('/get_avatar', methods=['GET'])
+@use_cors()
+@login_required
+def get_avatar():
+    try:
+        # Return only the avatar URL
+        return jsonify({'avatar': current_user.avatar}), 200
+    except Exception as e:
+        print(f"Error fetching avatar: {e}")
+        return jsonify({'error': 'Failed to fetch avatar'}), 500
+
+# Initialize S3 client
+s3 = boto3.client(
+    's3',
+    aws_access_key_id=os.getenv('S3_ACCESS_KEY'),
+    aws_secret_access_key=os.getenv('S3_SECRET_KEY')
+)
+
+# Route to upload avatar
+@main.route('/upload-avatar', methods=['POST'])
+@use_cors()
+@login_required
+def upload_avatar():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    bucket_name = os.getenv('S3_BUCKET_NAME')
+    key = f"avatars/{current_user.id}/{file.filename}"  # Use user ID to ensure unique paths
+
+    try:
+        # Upload file to S3
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            key,
+            ExtraArgs={"ContentType": file.content_type},
+        )
+        
+        # Construct the S3 URL
+        url = f"https://{bucket_name}.s3.amazonaws.com/{key}"
+
+        # Update the user's avatar in the database
+        current_user.avatar = url
+        db.session.commit()
+
+        return jsonify({'url': url}), 200
+    except Exception as e:
+        print(f"Error uploading avatar: {e}")
+        return jsonify({'error': 'Failed to upload avatar'}), 500
+    
+
+@main.route('/get_consent', methods=['GET'])
+@use_cors()
+@login_required
+def get_consent():
+    print(current_user.location_consent)
+    print(current_user.username)
+    return jsonify({'consent': current_user.location_consent}), 200

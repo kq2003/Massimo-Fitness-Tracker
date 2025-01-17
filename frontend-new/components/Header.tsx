@@ -13,47 +13,68 @@ import {
     NavigationMenuTrigger,
     NavigationMenuContent,
 } from '@/components/ui/navigation-menu';
-import { fetchUsername } from '@/services/api'; // API call to fetch username
+import { fetchUsername, fetchAvatar } from '@/services/api'; // API call to fetch username
 import axios from 'axios';
 
 export default function Header() {
     const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
         // Handle Logout
-        const handleLogout = async () => {
-            try {
-                console.log('Attempting to log out...');
-                const response = await logoutUser(); // Call logout API
-                console.log('Logout Response:', response.data); // Log successful response
-                alert('Logged out successfully!');
-                router.push('/auth'); // Redirect to login page
-            } catch (error) {
-                console.error('Logout Error:', error); // Log detailed error
-                if (axios.isAxiosError(error)) {
-                    console.error('Axios Error Response:', error.response?.data); // Log backend error response
-                    alert(error.response?.data?.message || 'Failed to log out. Please try again.');
-                } else {
-                    alert('An unknown error occurred during logout.');
-                }
-            }
-        };
+        // const handleLogout = async () => {
+        //     try {
+        //         console.log('Attempting to log out...');
+        //         const response = await logoutUser(); // Call logout API
+        //         console.log('Logout Response:', response.data); // Log successful response
+        //         alert('Logged out successfully!');
+        //         router.push('/auth'); // Redirect to login page
+        //     } catch (error) {
+        //         console.error('Logout Error:', error); // Log detailed error
+        //         if (axios.isAxiosError(error)) {
+        //             console.error('Axios Error Response:', error.response?.data); // Log backend error response
+        //             alert(error.response?.data?.message || 'Failed to log out. Please try again.');
+        //         } else {
+        //             alert('An unknown error occurred during logout.');
+        //         }
+        //     }
+        // };
+
+    // useEffect(() => {
+    //     const loadUsername = async () => {
+    //         try {
+    //             const response = await fetchUsername();
+    //             setUsername(response.data.username);
+    //         } catch (error) {
+    //             console.error('Failed to fetch username:', error);
+    //             setUsername(null);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     loadUsername();
+    // }, []);
 
     useEffect(() => {
-        const loadUsername = async () => {
+        const loadUserData = async () => {
             try {
-                const response = await fetchUsername();
-                setUsername(response.data.username);
+                // Fetch username and avatar separately
+                const [usernameResponse, avatarResponse] = await Promise.all([fetchUsername(), fetchAvatar()]);
+                setUsername(usernameResponse.data.username);
+                setAvatarUrl(avatarResponse);
+                console.log("Avatar URL:", avatarResponse);
             } catch (error) {
-                console.error('Failed to fetch username:', error);
+                console.error('Error fetching user data:', error);
                 setUsername(null);
+                setAvatarUrl(null);
             } finally {
                 setLoading(false);
             }
         };
 
-        loadUsername();
+        loadUserData();
     }, []);
 
     return (
@@ -135,7 +156,7 @@ export default function Header() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/add-workout/strength"
+                                        href="add-workout/strength"
                                         className="text-black-600 hover:text-black"
                                     >
                                         <strong>Strength Workout</strong>
@@ -182,7 +203,7 @@ export default function Header() {
             </NavigationMenu>
 
             {/* User Info - Avatar + Username */}
-            <div className="flex items-center space-x-4">
+            {/* <div className="flex items-center space-x-4">
                 <Link href="/user-info" className="flex items-center space-x-4 cursor-pointer">
                     <Avatar className="w-10 h-10">
                         <AvatarImage
@@ -198,6 +219,25 @@ export default function Header() {
                 <Button variant="default" onClick={handleLogout} className="ml-4 px-4 py-2 rounded-md">
                     Logout
                 </Button>
+            </div> */}
+            <div className="flex items-center space-x-4">
+                <Link href="/user-info" className="flex items-center space-x-4">
+                    <Avatar className="w-10 h-10">
+                        <AvatarImage
+                            src={avatarUrl || '/avatar-placeholder.png'}
+                            alt="User Avatar"
+                        />
+                        <AvatarFallback>
+                            {loading ? '...' : username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+                    <span className="text-gray-800 font-medium">
+                        {loading ? 'Loading...' : username}
+                    </span>
+                </Link>
+                {/* <Button variant="default" onClick={handleLogout}>
+                    Logout
+                </Button> */}
             </div>
         </header>
     );

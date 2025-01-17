@@ -90,3 +90,15 @@ class ActiveSessions(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     token = db.Column(db.String(128), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# Exercise model
+class Exercise(db.Model):
+    __tablename__ = 'exercises'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=False)
+    gif_name = db.Column(db.String(255), nullable=True)
+
+    def __repr__(self):
+        return f"<Exercise {self.name}>"
