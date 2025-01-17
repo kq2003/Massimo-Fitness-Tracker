@@ -2,15 +2,14 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from config import Config
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_session import Session
 from dotenv import load_dotenv
 from datetime import timedelta
+import os 
 
 load_dotenv()
-
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
@@ -23,9 +22,10 @@ def load_user(user_id):
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
+    load_dotenv()
 
     # Initialize extensions
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
@@ -39,6 +39,9 @@ def create_app():
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True  # Use HTTPS in production
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1) 
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    
+
     Session(app)
 
     # Register blueprints
@@ -46,7 +49,6 @@ def create_app():
     app.register_blueprint(main)
 
     return app
-
 
 
 

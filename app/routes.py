@@ -13,7 +13,6 @@ from app import bcrypt, db
 from datetime import datetime
 from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage, MessageRole
-from config import Config
 import os
 import uuid
 import boto3

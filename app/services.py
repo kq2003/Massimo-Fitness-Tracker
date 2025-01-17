@@ -1,4 +1,3 @@
-from config import Config
 from app import db
 from app.models import AerobicTraining, StrengthTraining, User
 from collections import defaultdict

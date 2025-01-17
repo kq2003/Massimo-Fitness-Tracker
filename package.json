@@ -3,6 +3,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.7",
     "heroku": "^8.7.1",
     "lucide-react": "^0.468.0",
     "next": "^15.1.3",
