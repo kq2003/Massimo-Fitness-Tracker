@@ -18,6 +18,7 @@ import uuid
 import boto3
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 bucket_name = os.getenv('S3_BUCKET_NAME')
