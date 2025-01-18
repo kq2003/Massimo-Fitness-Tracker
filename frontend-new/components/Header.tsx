@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { logoutUser } from '@/services/api';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
     NavigationMenu,
@@ -14,7 +12,6 @@ import {
     NavigationMenuContent,
 } from '@/components/ui/navigation-menu';
 import { fetchUsername, fetchAvatar } from '@/services/api'; // API call to fetch username
-import axios from 'axios';
 
 export default function Header() {
     const router = useRouter();
