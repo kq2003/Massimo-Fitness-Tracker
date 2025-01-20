@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // const API_URL = 'https://rocky-island-92759-454647932385.herokuapp.com';
-//const API_URL = 'http://127.0.0.1:5000';
-const API_URL = 'https://salty-journey-17763-cebfeab10e7b.herokuapp.com/'
+const API_URL = 'http://127.0.0.1:5000';
+// const API_URL = 'https://salty-journey-17763-cebfeab10e7b.herokuapp.com/'
 
 // User authentication
 export const registerUser = (registerData: object) =>
@@ -165,3 +165,19 @@ export const fetchConsent = async (): Promise<boolean> => {
         throw error;
     }
 }
+
+export const fetchGymActivity = async (year: number, month: number) => {
+    try {
+        const response = await axios.get(`${API_URL}/gym_activity`, {
+            params: {
+                year,
+                month,
+            },
+            withCredentials: true, // Include cookies for authenticated requests
+        });
+        return response.data; // Return the API response data
+    } catch (error) {
+        console.error('Error fetching gym activity:', error);
+        throw error; // Rethrow the error for the caller to handle
+    }
+};
