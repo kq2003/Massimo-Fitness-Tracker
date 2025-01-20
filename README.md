@@ -50,6 +50,11 @@ Contains the main application pages for the Next.js application.
 - `form-tracker/`: Page for user to upload video to access "form tracker" functionality.
 - `page.tsx`: Menu.
 
+#### `/services`
+Contains required apis.
+
+- `api.ts`: apis to access routes in flask backend.
+
 ### `/public`
 Stores static files like HTML, logos, and the manifest.
 
