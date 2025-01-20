@@ -20,7 +20,7 @@ Contains the Flask application's Python code.
 This directory manages the session configurations and data for Flask.
 
 ### `/frontend-new`
-Next.js-based frontend application.
+Next.js and React.js-based frontend application. Styles by Tailwind.css.
 
 #### `/components`
 Contains reusable UI components for the Next.js application.
@@ -47,6 +47,16 @@ Stores static files like HTML, logos, and the manifest.
 ### `/node_modules`
 Dependencies for the React application (not tracked in version control).
 
+## Usage
+
+### Local Development
+- Start both the Flask backend and the Next.js frontend.
+- Navigate to `localhost:3000` to access the web interface.
+
+### Access deployed version of project
+- Our current project is still under development, but we deployed the backend on heroku, and frontend on vercel.
+- You can access our app demo on https://massimo-h4uyejjpr-aos-projects-2be27b28.vercel.app/.
+
 ## Setup Instructions
 
 1. **Backend Setup**
@@ -60,11 +70,6 @@ Dependencies for the React application (not tracked in version control).
    - Navigate to the `frontend-new` directory.
    - Run `npm install` to install dependencies.
    - Use `npm run dev` to launch the Next.js application.
-
-## Usage
-
-- Start both the Flask backend and the Next.js frontend.
-- Navigate to `localhost:3000` to access the web interface.
 
 ## Contributing
 Contributions are welcome. Please fork the project and submit a pull request.
