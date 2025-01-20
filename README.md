@@ -1,9 +1,16 @@
 # MASSIMO-FITNESS-TRACKER
 
 ## Project Overview
-Massimo-Fitness-Tracker is an AI-powered gym application that helps user track and quantitizing their workout progress , create and edit their workout plans, find nearby gyms, and following the plan during workouts.
-The form tracker functionality, which allows user to visualize their workout form in 3d pose animation, and get insights with recommendations from smart AI, by simply uploading 1 video.
+**Massimo-Fitness-Tracker** is an AI-powered gym application designed to help users track and quantify their workout progress, create and edit personalized workout plans, find nearby gyms, and follow structured plans during workouts. 
 
+Key Features:
+- **3D Form Tracker**: Visualize workout form with 3D pose animations and get AI-driven insights by uploading a single video.
+- **Workout Plan Management**: Create, edit, and follow customized plans tailored to individual fitness goals.
+- **Activity Tracking**: Monitor aerobic and strength training sessions with detailed metrics.
+- **Gym Finder**: Locate nearby gyms based on user location.
+
+
+---
 ## Directory Structure
 
 ### `/app`
@@ -28,18 +35,20 @@ Contains reusable UI components for the Next.js application.
 - `ActivityCalendar.tsx`: Component for displaying activity calendar.
 - `Header.tsx`: Header component for the application.
 - `ui/`: Directory containing various UI components like buttons, forms, dialogs, etc.
+- `AuthenticatedPage.tsx`: Helper page to check if user is authenticated.
+- `RecommendationAgent.tsx`: Recommendation agent with RAG from gym expertise. Currently disabled.
 
-#### `/pages`
+#### `/app`
 Contains the main application pages for the Next.js application.
 
 - `auth/`: Authentication-related pages.
 - `query-data/`: Pages for querying workout data.
 - `user-info/`: User profile and information pages.
 - `workout-planning/`: Pages for planning workouts.
-- `add_workout.tsx`: Page for adding new workout sessions.
-- `list_all_workout.tsx`: Page for listing all workout sessions.
-- 'avatar-upload.tsx': Page for user to upload their avatars to be displayed.
-- 'form-tracker.tsx': Page for user to upload video to access "form tracker" functionality.
+- `add_workout/`: Page for adding new workout sessions for both aerobic and strength.
+- `avatar-upload/`: Page for user to upload their avatars to be displayed.
+- `form-tracker/`: Page for user to upload video to access "form tracker" functionality.
+- `page.tsx`: Menu.
 
 ### `/public`
 Stores static files like HTML, logos, and the manifest.
