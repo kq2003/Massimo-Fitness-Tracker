@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchUsername } from '@/services/api';
+import { checkAuth } from '@/services/api';
 
 export default function AuthenticatedPage({ children }: { children: React.ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,10 +9,14 @@ export default function AuthenticatedPage({ children }: { children: React.ReactN
     const router = useRouter();
 
     useEffect(() => {
-        const checkAuth = async () => {
+        const checkAuthentication = async () => {
             try {
-                await fetchUsername(); // Hits /get_username
-                setIsAuthenticated(true);
+                const authRes = await checkAuth(); // Hits /auth_check
+                if (authRes.authenticated) {
+                    setIsAuthenticated(true);
+                } else {
+                    throw new Error('Not authenticated');
+                }
             } catch (error) {
                 console.error('Not authenticated, redirecting to /auth');
                 router.push('/auth'); // Redirect to login
@@ -21,7 +25,7 @@ export default function AuthenticatedPage({ children }: { children: React.ReactN
             }
         };
 
-        checkAuth();
+        checkAuthentication();
     }, [router]);
 
     if (loading) {
@@ -34,3 +38,4 @@ export default function AuthenticatedPage({ children }: { children: React.ReactN
 
     return isAuthenticated ? <>{children}</> : null;
 }
+

@@ -18,6 +18,7 @@ import { Home, User2, Settings, LogOut, ImagePlus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchUsername, updateUsername, logoutUser } from '@/services/api'; // Replace with actual API calls
+import AuthenticatedPage from '@/components/AuthenticatedPage';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -116,6 +117,7 @@ export default function SettingsPage() {
   ];
 
   return (
+    <AuthenticatedPage>
     <SidebarProvider>
       <div className="flex min-h-screen">
         <Sidebar collapsible="icon" variant="sidebar" side="left">
@@ -232,6 +234,7 @@ export default function SettingsPage() {
         </main>
       </div>
     </SidebarProvider>
+    </AuthenticatedPage>
   );
 }
 
