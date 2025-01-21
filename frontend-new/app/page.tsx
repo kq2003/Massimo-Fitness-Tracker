@@ -4,8 +4,9 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { fetchCurrentDay } from "@/services/api";
+import { fetchCurrentDay, checkAuth } from "@/services/api";
 import AuthenticatedPage from '@/components/AuthenticatedPage';
+import ActivityCalendar from "@/components/ActivityCalendar";
 
 export default function MenuPage() {
     const router = useRouter();
@@ -15,6 +16,13 @@ export default function MenuPage() {
 
     useEffect(() => {
         const loadData = async () => {
+
+            const authRes = await checkAuth();
+            console.log(authRes);
+            if (!authRes.authenticated) {
+                router.push('/login');
+                return;
+            }
             try {
                 const dayRes = await fetchCurrentDay();
                 const day = dayRes.data.current_day;
@@ -90,6 +98,11 @@ export default function MenuPage() {
                         className="h-96 w-auto object-cover rounded-lg shadow-lg opacity-75 mix-blend-multiply"
                     />
                 </div>
+
+                                    {/* Activity Calendar */}
+                {/* <div className="mt-8 w-full max-w-3xl">
+                    <ActivityCalendar />
+                </div> */}
             </main>
         </div>
         </AuthenticatedPage>

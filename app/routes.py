@@ -16,11 +16,12 @@ from llama_index.core.llms import ChatMessage, MessageRole
 import os
 import uuid
 import boto3
+from sqlalchemy import or_
 from dotenv import load_dotenv
 
 
+# loading necessary environment variables
 load_dotenv()
-
 bucket_name = os.getenv('S3_BUCKET_NAME')
 access_key = os.getenv('S3_ACCESS_KEY')
 secret_key = os.getenv('S3_SECRET_KEY')
@@ -28,6 +29,7 @@ secret_key = os.getenv('S3_SECRET_KEY')
 
 main = Blueprint('main', __name__)
 
+# main route for registering a user
 @main.route('/register', methods=['POST'])
 @use_cors()
 def register():
@@ -41,30 +43,7 @@ def register():
     
     return jsonify({'message': 'User registered successfully'}), 201
 
-# @main.route('/login', methods=['POST'])
-# # @use_cors()
-# def login():
-#     data = request.get_json()
-#     user = User.query.filter_by(email=data['email']).first() #TODO Alex: is filtering by email enough?
-    
-#     if user and bcrypt.check_password_hash(user.password, data['password']):
-#         login_user(user)
-#         response = make_response(jsonify({
-#             'message': 'Logged in successfully',
-#             'locationConsent': user.location_consent,
-#             'needsConsent': user.location_consent is None
-#         }), 200)
-#         return response
-#     else:
-#         return jsonify({'message': 'Invalid credentials'}), 401
-
-from sqlalchemy import or_
-
-@main.route('/', methods=['GET'])
-@use_cors()
-def root():
-    return "Welcome to Massimo"  # Redirect to the /login route
-
+# main route for logging in a user
 @main.route('/login', methods=['GET', 'POST'])
 @use_cors()
 def login():
@@ -102,6 +81,7 @@ def login():
         return jsonify({'message': 'Invalid credentials'}), 401
     
 
+# main route for updating a user (refreshing for avatar and username after updating)
 @main.route('/update_user', methods=['POST'])
 @use_cors()
 @login_required
@@ -116,6 +96,7 @@ def update_user():
     return jsonify({'message': 'User updated successfully'}), 200
 
 
+# main route for logging out a user
 @main.route('/logout', methods=['POST'])
 @use_cors()
 @login_required
@@ -123,6 +104,8 @@ def logout():
     logout_user()
     return jsonify({'message': 'Logged out successfully'}), 200
 
+
+# main route for adding an aerobic training session
 @main.route('/add_aerobic', methods=['POST'])
 @use_cors()
 @login_required
@@ -132,6 +115,7 @@ def add_aerobic():
     return jsonify({'message': 'Aerobic training added', 'id': aerobic_session.id}), 201
 
 
+# main route for getting the username of the current user
 @main.route('/get_username', methods=['GET'])
 @use_cors()
 @login_required
@@ -142,6 +126,7 @@ def get_username():
     return jsonify({'username': current_user.username}), 200
 
 
+# main route for getting the aerobic training sessions of the current user
 @main.route('/get_aerobic', methods=['GET'])
 @use_cors()
 @login_required
@@ -150,6 +135,8 @@ def get_aerobic():
     result = [{'type': s.type, 'duration': s.duration, 'calories_burnt': s.calories_burnt} for s in sessions]
     return jsonify(result), 200
 
+
+# main route for updating an aerobic training session
 @main.route('/update_aerobic/<int:aerobic_id>', methods=['PUT'])
 @use_cors()
 @login_required
@@ -160,6 +147,8 @@ def update_aerobic(aerobic_id):
         return jsonify({'message': 'Aerobic training updated successfully'}), 200
     return jsonify({'message': 'Session not found'}), 404
 
+
+# main route for deleting an aerobic training session
 @main.route('/delete_aerobic/<int:aerobic_id>', methods=['DELETE'])
 @use_cors()
 @login_required
@@ -169,6 +158,8 @@ def delete_aerobic(aerobic_id):
         return jsonify({'message': 'Aerobic training deleted successfully'}), 200
     return jsonify({'message': 'Session not found'}), 404
 
+
+# main route for adding a strength training session
 @main.route('/add_strength', methods=['POST'])
 @use_cors()
 @login_required
@@ -177,6 +168,8 @@ def add_strength():
     strength_session = add_strength_training(data, current_user.id)
     return jsonify({'message': 'Strength training added', 'id': strength_session.id}), 201
 
+
+# main route for getting the strength training sessions of the current user
 @main.route('/get_strength', methods=['GET'])
 @use_cors()
 @login_required
@@ -185,6 +178,8 @@ def get_strength():
     result = [{'type': s.type, 'reps': s.reps, 'weight': s.weight, 'rest_time': s.rest_time, 'effort_level': s.effort_level} for s in sessions]
     return jsonify(result), 200
 
+
+# main route for updating a strength training session
 @main.route('/update_strength/<int:strength_id>', methods=['PUT'])
 @use_cors()
 @login_required
@@ -195,6 +190,8 @@ def update_strength(strength_id):
         return jsonify({'message': 'Strength training updated successfully'}), 200
     return jsonify({'message': 'Session not found'}), 404
 
+
+# main route for deleting a strength training session
 @main.route('/delete_strength/<int:strength_id>', methods=['DELETE'])
 @use_cors()
 @login_required
@@ -205,31 +202,7 @@ def delete_strength(strength_id):
     return jsonify({'message': 'Session not found'}), 404
 
 
-
-# @main.route('/workout_progress/<exercise_type>', methods=['GET'])
-# @login_required
-# def workout_progress(exercise_type):
-#     sessions = get_strength_training_by_exercise(current_user.id, exercise_type)
-
-#     data = {}
-#     for session in sessions:
-#         date_str = session.date.strftime("%Y-%m-%d")
-#         if date_str not in data:
-#             data[date_str] = []
-#         data[date_str].append({
-#             'reps': session.reps,
-#             'weight': session.weight,
-#             'rest_time': session.rest_time,
-#             'effort_level': session.effort_level,
-#         })
-
-#     response = {
-#         "dates": list(data.keys()),
-#         "first_set_weights": [sets[0]['weight'] for sets in data.values()],
-#         "first_set_reps": [sets[0]['reps'] for sets in data.values()],
-#         "details": data  # All sets per day
-#     }
-#     return jsonify(response), 200
+# main route for getting the progress of a specific strength exercise
 @main.route('/workout_progress/<exercise_type>', methods=['GET'])
 @use_cors()
 @login_required
@@ -268,6 +241,7 @@ def workout_progress(exercise_type):
     return jsonify(response), 200
 
 
+# main route for calculating 1RM
 def calculate_1rm(weight, reps):
     """Calculate 1RM using Epley formula."""
     return weight * (1 + reps / 30)
@@ -751,23 +725,6 @@ def generate_workout_plan():
         
 
 
-# @main.route('/remove_workout_plan', methods=['DELETE'])
-# @use_cors()
-# @login_required
-# def remove_workout_plan():
-#     try:
-#         from app.models import WorkoutPlan
-#         # Remove the workout plan for the current user
-#         WorkoutPlan.query.filter_by(user_id=current_user.id).delete()
-
-#         # Commit the changes
-#         from app import db
-#         db.session.commit()
-
-#         return jsonify({'message': 'Workout plan removed successfully'}), 200
-#     except Exception as e:
-#         print(f"Error removing workout plan: {e}")
-#         return jsonify({'error': 'Failed to remove workout plan'}), 500
 
 @main.route('/remove_workout_plan', methods=['DELETE'])
 @use_cors()
@@ -850,3 +807,53 @@ def get_consent():
     print(current_user.location_consent)
     print(current_user.username)
     return jsonify({'consent': current_user.location_consent}), 200
+
+
+
+@main.route('/gym_activity', methods=['GET'])
+@use_cors()
+@login_required
+def get_gym_activity():
+    try:
+        from app.models import StrengthTraining, AerobicTraining
+        year = int(request.args.get('year'))
+        month = int(request.args.get('month'))
+
+        # Fetch strength training sessions for the user in the specified month
+        strength_trainings = StrengthTraining.query.filter_by(user_id=current_user.id).all()
+
+        # Fetch aerobic training sessions for the user in the specified month
+        aerobic_trainings = AerobicTraining.query.filter_by(user_id=current_user.id).all()
+
+        # Combine the results from both tables
+        activity = []
+
+        # Add strength training sessions
+        for s in strength_trainings:
+            if s.date.year == year and s.date.month == month:
+                activity.append({
+                    'date': s.date.strftime('%Y-%m-%d'),
+                    'workout_type': f"Strength - {s.type}"  # e.g., "Strength - Bench"
+                })
+
+        # Add aerobic training sessions
+        for a in aerobic_trainings:
+            if a.date.year == year and a.date.month == month:
+                activity.append({
+                    'date': a.date.strftime('%Y-%m-%d'),
+                    'workout_type': f"Aerobic - {a.type}"  # e.g., "Aerobic - Running"
+                })
+
+        return jsonify({'activity': activity}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@main.route('/auth_check', methods=['GET'])
+@use_cors()
+def check_auth():
+    if current_user.is_authenticated:
+        return jsonify({"authenticated": True}), 200
+    else:
+        return jsonify({"authenticated": False}), 200
