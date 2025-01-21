@@ -181,3 +181,18 @@ export const fetchGymActivity = async (year: number, month: number) => {
         throw error; // Rethrow the error for the caller to handle
     }
 };
+
+
+export async function checkAuth(): Promise<{ authenticated: boolean; user?: { username: string; avatar: string } }> {
+    try {
+        const response = await axios.get(`${API_URL}/auth_check`, {
+            method: 'GET',
+            withCredentials: true,
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error checking authentication:", error);
+        return { authenticated: false };
+    }
+}
