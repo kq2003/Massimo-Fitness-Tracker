@@ -20,7 +20,7 @@ export default function MenuPage() {
             const authRes = await checkAuth();
             console.log(authRes);
             if (!authRes.authenticated) {
-                router.push('/login');
+                router.push('/auth');
                 return;
             }
             try {
