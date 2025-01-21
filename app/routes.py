@@ -28,7 +28,7 @@ secret_key = os.getenv('S3_SECRET_KEY')
 
 
 main = Blueprint('main', __name__)
-@main.route('/', methods=['POST'])
+@main.route('/', methods=['POST', 'GET'])
 @use_cors()
 def root():
     print("Welcome to Massimo")
