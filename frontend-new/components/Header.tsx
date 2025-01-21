@@ -11,59 +11,82 @@ import {
     NavigationMenuTrigger,
     NavigationMenuContent,
 } from '@/components/ui/navigation-menu';
-import { fetchUsername, fetchAvatar } from '@/services/api'; // API call to fetch username
+import { fetchUsername, fetchAvatar, checkAuth } from '@/services/api'; // API call to fetch username
 
 export default function Header() {
     const router = useRouter();
     const [username, setUsername] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [authenticated, setAuthenticated] = useState<boolean>(false);
 
-        // Handle Logout
-        // const handleLogout = async () => {
-        //     try {
-        //         console.log('Attempting to log out...');
-        //         const response = await logoutUser(); // Call logout API
-        //         console.log('Logout Response:', response.data); // Log successful response
-        //         alert('Logged out successfully!');
-        //         router.push('/auth'); // Redirect to login page
-        //     } catch (error) {
-        //         console.error('Logout Error:', error); // Log detailed error
-        //         if (axios.isAxiosError(error)) {
-        //             console.error('Axios Error Response:', error.response?.data); // Log backend error response
-        //             alert(error.response?.data?.message || 'Failed to log out. Please try again.');
-        //         } else {
-        //             alert('An unknown error occurred during logout.');
-        //         }
-        //     }
-        // };
+    // // Check authentication on mount
+    // useEffect(() => {
+    //     const checkAuthentication = async () => {
+    //         try {
+    //             const authRes = await checkAuth();
+    //             console.log(authRes);
+    //             if (!authRes.authenticated) {
+    //                 router.push('/auth'); // Redirect to the auth page if not authenticated
+    //             }
+    //         } catch (error) {
+    //             console.error('Error checking authentication:', error);
+    //             router.push('/auth'); // Redirect on error as a fallback
+    //         }
+    //     };
+
+    //     checkAuthentication();
+    // }, [router]);
 
     // useEffect(() => {
-    //     const loadUsername = async () => {
+    //     const loadUserData = async () => {
     //         try {
-    //             const response = await fetchUsername();
-    //             setUsername(response.data.username);
+    //             // Fetch username and avatar separately
+    //             const [usernameResponse, avatarResponse] = await Promise.all([fetchUsername(), fetchAvatar()]);
+    //             setUsername(usernameResponse.data.username);
+    //             setAvatarUrl(avatarResponse);
+    //             console.log("Avatar URL:", avatarResponse);
     //         } catch (error) {
-    //             console.error('Failed to fetch username:', error);
+    //             console.error('Error fetching user data:', error);
     //             setUsername(null);
+    //             setAvatarUrl(null);
     //         } finally {
     //             setLoading(false);
     //         }
     //     };
 
-    //     loadUsername();
+    //     loadUserData();
     // }, []);
 
     useEffect(() => {
+        const checkAuthentication = async () => {
+            try {
+                const authRes = await checkAuth();
+                if (authRes.authenticated) {
+                    setAuthenticated(true);
+                } else {
+                    router.push('/auth');
+                }
+            } catch {
+                router.push('/auth');
+            }
+        };
+
+        checkAuthentication();
+    }, [router]);
+
+    useEffect(() => {
+        if (!authenticated) return;
+
         const loadUserData = async () => {
             try {
-                // Fetch username and avatar separately
-                const [usernameResponse, avatarResponse] = await Promise.all([fetchUsername(), fetchAvatar()]);
+                const [usernameResponse, avatarResponse] = await Promise.all([
+                    fetchUsername(),
+                    fetchAvatar(),
+                ]);
                 setUsername(usernameResponse.data.username);
                 setAvatarUrl(avatarResponse);
-                console.log("Avatar URL:", avatarResponse);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
+            } catch {
                 setUsername(null);
                 setAvatarUrl(null);
             } finally {
@@ -72,7 +95,11 @@ export default function Header() {
         };
 
         loadUserData();
-    }, []);
+    }, [authenticated]);
+
+    if (!authenticated) {
+        return null; // Prevent rendering if the user is not authenticated
+    }
 
     return (
         <header className="flex justify-between items-center p-4 bg-white shadow-md">
