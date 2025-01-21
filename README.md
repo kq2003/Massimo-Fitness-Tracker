@@ -69,7 +69,7 @@ Dependencies for the React application (not tracked in version control).
 
 ### Access deployed version of project
 - Our current project is still under development, but we deployed the backend on heroku, and frontend on vercel.
-- You can access our app demo on https://massimo-h4uyejjpr-aos-projects-2be27b28.vercel.app/.
+- You can access our app demo on https://massimo-k8ho6oshs-aos-projects-2be27b28.vercel.app/.
 
 ## Setup Instructions
 
