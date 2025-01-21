@@ -28,6 +28,10 @@ secret_key = os.getenv('S3_SECRET_KEY')
 
 
 main = Blueprint('main', __name__)
+@main.route('/', methods=['POST'])
+@use_cors()
+def root():
+    print("Welcome to Massimo")
 
 # main route for registering a user
 @main.route('/register', methods=['POST'])
