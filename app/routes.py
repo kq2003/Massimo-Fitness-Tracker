@@ -849,3 +849,11 @@ def get_gym_activity():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@main.route('/auth_check', methods=['GET'])
+@use_cors()
+def check_auth():
+    if current_user.is_authenticated:
+        return jsonify({"authenticated": True}), 200
+    else:
+        return jsonify({"authenticated": False}), 200

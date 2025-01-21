@@ -8,11 +8,6 @@ import time
 import os
 
 
-# from llama_index import GPTVectorStoreIndex, Document
-# from app.models import AerobicTraining, StrengthTraining
-# from datetime import datetime
-
-
 def query_workout_data(index, workout_type=None, start_date=None, end_date=None):
     # Build the base query
     query = ""

@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { fetchCurrentDay } from "@/services/api";
+import { fetchCurrentDay, checkAuth } from "@/services/api";
 import AuthenticatedPage from '@/components/AuthenticatedPage';
 import ActivityCalendar from "@/components/ActivityCalendar";
 
@@ -16,6 +16,13 @@ export default function MenuPage() {
 
     useEffect(() => {
         const loadData = async () => {
+
+            const authRes = await checkAuth();
+            console.log(authRes);
+            if (!authRes.authenticated) {
+                router.push('/login');
+                return;
+            }
             try {
                 const dayRes = await fetchCurrentDay();
                 const day = dayRes.data.current_day;

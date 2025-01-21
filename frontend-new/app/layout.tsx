@@ -72,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const pathname = usePathname();
 
     // Define paths where header and recommendation agent shouldn't appear
-    const noHeaderPaths = ['/auth', '/login', '/signup', '/user-info', '/add-workout/strength', '/add-workout/aerobic' ];
+    const noHeaderPaths = ['/auth', '/login', '/signup', '/user-info', '/add-workout/strength', '/add-workout/aerobic', '/settings', '/avatar-upload'];
     // const noRecommendationPaths = ['/auth', '/login', '/signup'];
 
     const showHeader = !noHeaderPaths.includes(pathname);
