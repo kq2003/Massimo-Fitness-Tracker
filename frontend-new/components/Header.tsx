@@ -120,6 +120,38 @@ export default function Header() {
             {/* Navigation Menu */}
             <NavigationMenu>
                 <NavigationMenuList>
+                    
+                    {/* Add Workout */}
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger>Help Center</NavigationMenuTrigger>
+                        <NavigationMenuContent className="mt-2 w-[500px] min-w-[400px] max-w-[600px] flex-shrink-0">
+                            <ul className="bg-white p-6 space-y-4 shadow-md border rounded-lg">
+                                <li>
+                                    <Link
+                                        href="help-center/user-manual"
+                                        className="text-black-600 hover:text-black"
+                                    >
+                                        <strong>User Manual</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Click this link if you are lost at any point.
+                                        </p>
+                                    </Link>
+                                </li>
+                                {/* <li>
+                                    <Link
+                                        href="help-center/about-us"
+                                        className="text-black-600 hover:text-black"
+                                    >
+                                        <strong>About Us</strong>
+                                        <p className="text-gray-500 text-sm">
+                                            Track your weightlifting and resistance exercises.
+                                        </p>
+                                    </Link>
+                                </li> */}
+                            </ul>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+
                     {/* Query Data */}
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Query Data</NavigationMenuTrigger>
