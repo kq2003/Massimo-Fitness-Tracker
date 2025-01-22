@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // const API_URL = 'https://rocky-island-92759-454647932385.herokuapp.com';
-const API_URL = 'http://127.0.0.1:5000';
-// const API_URL = 'https://salty-journey-17763-cebfeab10e7b.herokuapp.com/'
+// const API_URL = 'http://127.0.0.1:5000';
+const API_URL = 'https://salty-journey-17763-cebfeab10e7b.herokuapp.com/'
 
 // User authentication
 export const registerUser = (registerData: object) =>
@@ -222,3 +222,4 @@ export const saveBasicInfo = async (basicInfo: {
         throw error;
     }
 };
+
