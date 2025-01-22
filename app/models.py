@@ -21,6 +21,7 @@ class User(db.Model, UserMixin):
     workout_progress = db.relationship(
         'UserWorkoutProgress', backref='user_progress', lazy=True, uselist=False
     )
+    basic_info = db.relationship('BasicInfo', backref='user_basic_info', lazy=True)
 
 # Aerobic training schema
 class AerobicTraining(db.Model):
@@ -102,3 +103,15 @@ class Exercise(db.Model):
 
     def __repr__(self):
         return f"<Exercise {self.name}>"
+    
+
+
+class BasicInfo(db.Model):
+    __tablename__ = 'basic_info'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    height = db.Column(db.Float, nullable=False)
+    weight = db.Column(db.Float, nullable=False)
+    ideal_weight = db.Column(db.Float, nullable=False)
+    ideal_body_fat = db.Column(db.Float, nullable=False)
