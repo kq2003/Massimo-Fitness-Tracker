@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, make_response, redirect, url_for, session
 from flask_login import login_required, current_user, login_user, logout_user
-from app.models import User, Location, UserWorkoutProgress, WorkoutPlan, ActiveSessions
+from app.models import User, Location, UserWorkoutProgress, WorkoutPlan, ActiveSessions, BasicInfo
 from app.custom_cors import use_cors
 from app.services import (
     add_aerobic_training, get_aerobic_training, update_aerobic_training, delete_aerobic_training,
@@ -857,3 +857,61 @@ def check_auth():
         return jsonify({"authenticated": True}), 200
     else:
         return jsonify({"authenticated": False}), 200
+
+
+
+@main.route('/get_basic_info', methods=['GET'])
+@use_cors()
+@login_required
+def get_basic_info():
+    """
+    Fetch the basic info of the current user.
+    """
+    basic_info = BasicInfo.query.filter_by(user_id=current_user.id).first()
+    if basic_info:
+        return jsonify({
+            'age': basic_info.age,
+            'height': basic_info.height,
+            'weight': basic_info.weight,
+            'ideal_weight': basic_info.ideal_weight,
+            'ideal_body_fat': basic_info.ideal_body_fat,
+        }), 200
+    else:
+        return jsonify({'message': 'Basic info not found'}), 404
+
+
+@main.route('/save_basic_info', methods=['POST'])
+@use_cors()
+@login_required
+def save_basic_info():
+    """
+    Save or update the basic info of the current user.
+    """
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    basic_info = BasicInfo.query.filter_by(user_id=current_user.id).first()
+
+    if basic_info:
+        # Update existing basic info
+        basic_info.age = data.get('age', basic_info.age)
+        basic_info.height = data.get('height', basic_info.height)
+        basic_info.weight = data.get('weight', basic_info.weight)
+        basic_info.ideal_weight = data.get('ideal_weight', basic_info.ideal_weight)
+        basic_info.ideal_body_fat = data.get('ideal_body_fat', basic_info.ideal_body_fat)
+    else:
+        # Create new basic info
+        basic_info = BasicInfo(
+            user_id=current_user.id,
+            age=data['age'],
+            height=data['height'],
+            weight=data['weight'],
+            ideal_weight=data['ideal_weight'],
+            ideal_body_fat=data['ideal_body_fat']
+        )
+        db.session.add(basic_info)
+
+    db.session.commit()
+    return jsonify({'message': 'Basic info saved successfully'}), 201
