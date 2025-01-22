@@ -186,7 +186,6 @@ export const fetchGymActivity = async (year: number, month: number) => {
 export async function checkAuth(): Promise<{ authenticated: boolean; user?: { username: string; avatar: string } }> {
     try {
         const response = await axios.get(`${API_URL}/auth_check`, {
-            method: 'GET',
             withCredentials: true,
         });
 
@@ -196,3 +195,30 @@ export async function checkAuth(): Promise<{ authenticated: boolean; user?: { us
         return { authenticated: false };
     }
 }
+
+
+export const fetchBasicInfo = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/get_basic_info`, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching basic info:', error);
+        throw error;
+    }
+};
+
+export const saveBasicInfo = async (basicInfo: {
+    age: number;
+    height: number;
+    weight: number;
+    ideal_weight: number;
+    ideal_body_fat: number;
+}) => {
+    try {
+        const response = await axios.post(`${API_URL}/save_basic_info`, basicInfo, { withCredentials: true });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving basic info:', error);
+        throw error;
+    }
+};

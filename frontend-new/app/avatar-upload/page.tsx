@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Home, User2, Settings, LogOut, ImagePlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import AuthenticatedPage from '@/components/AuthenticatedPage';
 
 export default function AvatarUploadPage() {
     const router = useRouter();
@@ -70,6 +71,7 @@ export default function AvatarUploadPage() {
     };
 
     return (
+        <AuthenticatedPage>
         <SidebarProvider>
             <div className="flex min-h-screen">
                 <Sidebar collapsible="icon" variant="sidebar" side="left">
@@ -143,5 +145,6 @@ export default function AvatarUploadPage() {
                 </main>
             </div>
         </SidebarProvider>
+        </AuthenticatedPage>
     );
 }

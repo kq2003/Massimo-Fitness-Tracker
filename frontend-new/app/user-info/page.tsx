@@ -65,7 +65,7 @@ export default function UserInfoPage() {
   // Define your sidebar menu items
   const menuItems = [
     { title: 'Home', icon: Home, url: '/' },
-    { title: 'Profile', icon: User2, url: '/user-info' },
+    { title: 'Profile', icon: User2, url: '/profile' },
     { title: 'Settings', icon: Settings, url: '/settings' },
     { title: 'Upload Avatar', icon: ImagePlus, url: '/avatar-upload' },
   ];

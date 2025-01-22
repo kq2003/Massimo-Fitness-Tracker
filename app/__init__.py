@@ -32,7 +32,7 @@ def create_app():
     Migrate(app, db)
 
     #for local, switch back later
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": r"https://.*\.vercel\.app"}})
+    # CORS(app, supports_credentials=True, resources={r"/*": {"origins": r"https://.*\.vercel\.app"}})
 
     
     # configs for session
