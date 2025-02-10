@@ -200,18 +200,20 @@ export default function WorkoutPlanningPage() {
     const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setGenerating(true);
+    
         try {
             const coreLifts = form.getValues();
-            const response = await generateWorkoutPlan(coreLifts);
 
-            const processedPlan = response.data.plan.map((day) => ({
+            const response: { data: { plan: WorkoutDay[] } } = await generateWorkoutPlan(coreLifts);
+    
+            const processedPlan = response.data.plan.map((day: WorkoutDay) => ({
                 day: day.day,
                 workouts: day.workouts.map((workout) => ({
                     ...workout,
                     weight: typeof workout.weight === "string" ? 0.0 : workout.weight,
                 })),
             }));
-
+    
             setWorkoutPlan(processedPlan);
         } catch (error) {
             console.error("Error generating workout plan:", error);
@@ -220,6 +222,7 @@ export default function WorkoutPlanningPage() {
             setGenerating(false);
         }
     };
+    
 
     const handleWorkoutSave = (editedWorkout: Workout, dayIndex: number, workoutIndex: number) => {
         setWorkoutPlan(prevPlan => {
@@ -354,9 +357,6 @@ export default function WorkoutPlanningPage() {
                 style={{
                     transform: transform ? `translateY(${transform.y}px)` : undefined,
                     transition: "height 0.3s ease-in-out, transform 0.3s ease-in-out",
-                    background: "white",
-                    border: "1px solid #ddd",
-                    borderRadius: "8px",
                     marginBottom: "8px",
                 }}
                 className="shadow-md flex items-center"
